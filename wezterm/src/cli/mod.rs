@@ -336,6 +336,13 @@ impl LicenseCommand {
 }
 
 async fn run_cli_async(opts: &crate::Opt, cli: CliCommand) -> anyhow::Result<()> {
+    // License commands must work on a fresh install without a running mux/GUI.
+    match &cli.sub {
+        CliSubCommand::Activate(cmd) => return cmd.run().await,
+        CliSubCommand::License(cmd) => return cmd.run().await,
+        _ => {}
+    }
+
     let mut ui = mux::connui::ConnectionUI::new_headless();
     let initial = true;
 
