@@ -188,12 +188,12 @@ enum SubCommand {
     #[command(name = "ai", about = "Manage AI models (download, status, etc.)")]
     AI(cli::ai::AICommand),
 
-    /// Activate a CX Linux license key
+    /// Activate a CX Linux license key (`cx activate <LICENSE_KEY>`)
     #[command(name = "activate", about = "Activate a CX Linux license key")]
     Activate(cli::ActivateCommand),
 
-    /// Show current license status
-    #[command(name = "license", about = "Show current license status")]
+    /// License status; use `cx license activate` as an alias of `cx activate`
+    #[command(name = "license", about = "Show license status or activate via subcommand")]
     License(cli::LicenseCommand),
 
     /// Catch-all: route unrecognized input to `cx ask` for natural language processing.
@@ -791,11 +791,9 @@ fn init_config(opts: &Opt) -> anyhow::Result<ConfigHandle> {
 fn run_async_command(
     fut: impl std::future::Future<Output = anyhow::Result<()>>,
 ) -> anyhow::Result<()> {
-    let executor = promise::spawn::ScopedExecutor::new();
-    match promise::spawn::block_on(executor.run(fut)) {
-        Ok(_) => Ok(()),
-        Err(err) => crate::terminate_with_error(err),
-    }
+    let rt = tokio::runtime::Runtime::new()
+        .map_err(|e| anyhow::anyhow!("Failed to start async runtime: {}", e))?;
+    rt.block_on(fut)
 }
 
 fn run() -> anyhow::Result<()> {

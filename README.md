@@ -55,7 +55,7 @@ sudo apt update && sudo apt install cx-terminal
 
 **APT repo requirements:** the published `cx-terminal` package is built on Ubuntu 24.04 and requires `libc6 >= 2.39`. Ubuntu 22.04/20.04 and Debian 12 (Bookworm) cannot install from this repo until a compatible build is published. See [docs/verification/INSTALL_VERIFICATION.md](docs/verification/INSTALL_VERIFICATION.md).
 
-**License activation** (after Pro/Team checkout): use `cx activate <LICENSE_KEY>` or `cx-terminal activate <LICENSE_KEY>`. Keys are shown on the [pricing success page](https://cxlinux.com/pricing/success) and in your account dashboard. See [docs/verification/LICENSE_ACTIVATION_FLOW.md](docs/verification/LICENSE_ACTIVATION_FLOW.md).
+**License activation** (after Pro/Team checkout): **`cx activate <LICENSE_KEY>`** (aliases: `cx license activate …`, `cx-terminal activate …`). Keys appear on the [pricing success page](https://cxlinux.com/pricing/success) and in your account dashboard. See [docs/verification/LICENSE_ACTIVATION_FLOW.md](docs/verification/LICENSE_ACTIVATION_FLOW.md).
 
 ### Build from Source
 

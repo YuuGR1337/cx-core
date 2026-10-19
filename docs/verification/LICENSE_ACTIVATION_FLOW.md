@@ -2,6 +2,14 @@
 
 Evidence from `cx-core` (this repo), shallow clone of `cx-web`, and live **read-only** calls to `https://license.cxlinux.com` (no Stripe charges, no checkout completion).
 
+## Canonical activation command
+
+**`cx activate <LICENSE_KEY>`**
+
+Aliases (backward compatible): `cx-terminal activate …`, `cx license activate …`.
+
+Site copy still to fix: `docs/verification/CX_WEB_COPY_TODO.md`.
+
 ## End-to-end flow (intended)
 
 | Step | What the customer sees / does | Code / service | Verified |
@@ -15,7 +23,7 @@ Evidence from `cx-core` (this repo), shallow clone of `cx-web`, and live **read-
 | 7 | Email fallback if key slow | “sent to {email} within a minute” | **UNVERIFIED** |
 | 8 | Account dashboard | [cxlinux.com/account](https://cxlinux.com/account) — `license.key`, `cx activate {key}` hint | Code in `cx-web/client/src/pages/account.tsx` |
 | 9 | Install CX | APT instructions in README / getting-started | Ubuntu 24.04 PASS; Debian 12 FAIL (see INSTALL_VERIFICATION.md) |
-| 10 | Activate on machine | `cx activate <KEY>` or `cx-terminal activate <KEY>` | **FAIL** on **published** APT build (see blockers) |
+| 10 | Activate on machine | `cx activate <KEY>` | **PASS** on Bookworm-built local `.deb` (invalid key); **FAIL** on published APT until release |
 | 11 | Check status | `cx license` / `cx-terminal license` | Same as step 10 |
 | 12 | Server validation | `POST /api/v1/licenses/activate` then `POST /api/v1/licenses/validate` with `hardware_id` | **PARTIAL** — invalid key returns `{"error":"Invalid license key","valid":false}` |
 
