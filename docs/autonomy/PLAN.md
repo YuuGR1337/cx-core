@@ -32,6 +32,13 @@ Owners: **cloud** = cloud coding agent · **linus** = this bot · **mike** = Mic
 - T06 IN PROGRESS (cloud agent bc-71fb33cc, separate cx-web PR). T13 DRAFTED early (`../drafts/first-user-playbook.md`); launch posts drafted (`../drafts/launch-posts-DRAFT.md`).
 - Critical path: M1 ($20 test) + M-CORE (merge #771→#772→#774, new APT release).
 
+## Progress (updated 2026-10-20 09:15 MT)
+- T03/T04/T05 DONE + LIVE: cx-web #57 merged ~8:53am MT; https://cxlinux.com/pricing returns 200, junk path 404, sitemap 200 (curl 9:14am MT). T06 DONE + LIVE: #58 merged ~8:52am MT.
+- cx-core #771 + #772 merged Oct 19. #773 docs mirror merged. #774 (license CLI, Bookworm CLI deb, apt smoke) now conflicts with main: rebase agent launched this cycle.
+- New (repositioning): #775 dry-run default + safety demo (CI blocked only by pre-existing failures) and #776 CI unblock (green except CodeQL). Merge order: #776 → #775 → #774 → APT release → M1.
+- Found on live site: activation copy mixes `cx activate` and `cx license activate`; install.sh claims Debian 11+ (Debian 12 fails). cx-web copy fix agent launched this cycle.
+- Next: T08/T09 rerun after #774 rebase; T10 after APT release + M1; T12 README line after #774/#775.
+
 ## Dependency graph (short)
 T01 (first $) is **unblocked by engineering** today — e2e proved Stripe page loads.  
 T03–T05 improve conversion/SEO but are **not** required before T01.  

@@ -10,3 +10,8 @@ Format: date MT | decision | why | how to undo
 - 2026-10-19 | Cloud agents may open PRs on cx-web/cx-core; merges remain Mike-queued unless M5 granted | standing Linus rule | grant M5
 
 - 2026-10-19 | cx-web PR #57 renames site 'CX Pro' to 'CX Core+' to match live Stripe product (plan id stays pro) | copy-only, matches what buyers see at checkout, no Stripe write needed | revert the copy commit, or rename the Stripe product instead (checklist in PR #57)
+- 2026-10-19 | Docs mirror on PR #773 updates only our 5 files; never removes others' files | 09:36 mistake removed two files | restore commit on #773
+- 2026-10-20 | Reposition CX as 'safe AI operations layer for Debian/Ubuntu fleets' (dry-run default, sandboxed, audited, reversible, local-first, removable); buyer = server teams (Team/Enterprise); drop unverified deck claims (Sapiens 55%, $1B at $2.4M ARR, 19K clones/10K customers) | Michael's market read Oct 20 4:08am MT | revert to prior positioning
+- 2026-10-20 | Docs mirror: #773 (docs/autonomy/) is merged to main, so each later sync is a new small docs-only branch PR in cx-core, never a direct push to main | keeps main untouched without a tap | close that PR
+- 2026-10-20 | Routine runs can't reply to cloud agents started in other runs (tool limit), so follow-ups launch a fresh Composer 2.5 agent that works on the existing PR branch (cx-core #774) | avoids duplicate PRs | n/a
+- 2026-10-20 | cx-web copy: canonical activation command is `cx activate <LICENSE_KEY>`; install/support copy claims only verified OS (Ubuntu 24.04 PASS; Debian 12 not yet) | matches FACTS.md + #774 evidence | revert the cx-web PR
