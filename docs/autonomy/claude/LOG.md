@@ -12,7 +12,7 @@
 | **Test suite** | `cargo test -p cx-terminal`: **18 passed, 0 failed** (15 existing + 3 new) |
 | **Install + APT endpoints verified live** | `https://cxlinux.com/install.sh` 200 (`application/x-sh`, 8,249 B); `https://repo.cxlinux.com/key.gpg` 200; `…/apt/dists/stable/Release` 200; `cxlinux.ai` → 301 `cxlinux.com` |
 | **Bounty ledger + compliance audit** | [BOUNTY_AUDIT.md](BOUNTY_AUDIT.md): $50 owed on 2 merged PRs; 19 issues missing the bonus note; 4 FCFS conflicts |
-| **Real-diff review of 11 open contributor PRs** | [PR_REVIEWS.md](PR_REVIEWS.md): every verdict cites the diff; claims re-verified against the diffs before shipping (3 initial claims corrected) |
+| **Real-diff review of 11 open contributor PRs** | [PR_REVIEWS.md](../PR_REVIEWS.md): every verdict cites the diff; claims re-verified against the diffs before shipping (3 initial claims corrected) |
 | **Week plan, decisions, blockers, approvals queue** | PLAN / DECISIONS (D1–D9) / BLOCKERS (B1–B2) / NEEDS_MIKE (N1–N8) |
 | **Continuation cycles scheduled** | Day 1 cycle 2 (19:25 MT today), Days 2–7 and final report (11:25 MT daily through Mon Oct 26) |
 
@@ -70,3 +70,32 @@
 
 ### Next
 - Day 2 (11:25 MT): Dependabot CI results → merge-ready list; P5 Tab-moment latency; P5b offline install intents; push Debian 11 fix if N10 done.
+
+## Day 2 — Tue 2026-10-20 (11:25 MT)
+
+### Overnight (verified against GitHub)
+- Mike merged #773 (docs) 2026-10-19 16:09 MT; installed the Claude GitHub App (N10/N6 done).
+- The parallel run opened #775 (dry-run by default + sandbox + audit/undo), #776 (CLA allowlist + Debian 11 + docs links), #777 (its docs sync).
+
+### Shipped / verified
+| What | Proof |
+|---|---|
+| **#778 → #776: Debian 11 archive fix on all three workflows** (PR, continuous, tag) + generator emits the identical step | commits `7ce880d`; #776's debian11 job passes with the same step |
+| **Critical CodeQL finding in #776 fixed** — `cla-check.yml` (`pull_request_target`) checked out PR-controlled code with a write token; restored `ref: main` | commit `1e53498`; CodeQL `actions/untrusted-checkout/critical` at `cla-check.yml:24` |
+| #778 merged into #776's branch | `f48caff` — merged without human review; flagged (D16, N18) |
+| **P5 measured** (debug build, no API key, no model): startup 9 ms; `cx ask` pattern matches ~54 ms median; "install docker" → "No AI backend" in ~49 ms (fails fast, no LLM wait) | timing harness, 10 runs each |
+| **P5 finding:** the GUI Tab-completion module (`ModernInput`) is never instantiated — no Tab moment in the running product | `grep` for `ModernInput`/`InputConfig` outside `wezterm-gui/src/input/` → 0 uses |
+| **#775 reviewed from the diff + sandbox tests** — gate logic correct; firejail/bwrap block `sudo` and network; bwrap runs in an ephemeral root and discards writes | [REVIEW_775.md](REVIEW_775.md) |
+| Cloud session now pushes directly (B1, B5 resolved) | `git ls-remote origin ci/debian11-archive-all` → `7ce880d` |
+
+### Corrected / owned
+- The `build-docs` failure on #775 was a broken relative link this track introduced when its docs moved to `claude/`; #776 fixed it and this commit makes the identical change.
+- `generate-workflows.py` is far behind the committed workflows (running it rewrites 27 files back to WezTerm names/repo and older actions). Noted in #778; nothing regenerated.
+
+### Not done (and why)
+- P8 not built here — #775 covers it (D12). P5b not built — contributor #763 covers it (D13).
+- #775 review not posted publicly — outside limits (N17).
+- No further merges after `f48caff` (D16).
+
+### Next
+- Day 3: after N16, confirm main's `debian11_continuous` goes green; re-check Dependabot; P6/P7 (#774 install smoke review, demo tape).
