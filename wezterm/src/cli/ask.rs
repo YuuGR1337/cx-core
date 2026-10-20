@@ -9,9 +9,12 @@ You may not use this file except in compliance with the License.
 //! Smart command detection that uses CX primitives (`cx new`, `cx save`, etc.)
 //! before falling back to AI providers.
 //!
-//! Example: cx ask "create a python project" → cx new python <name>
-//! Example: cx ask "save my work" → cx save <smart-name>
-//! Example: cx ask "how do I install docker" → AI response with command
+//! State-changing suggestions default to a dry-run preview; use `--execute` (`-d`) to run.
+//! Read-only matches (e.g. `cx snapshots -l`) may execute immediately.
+//!
+//! Example: cx ask "create a python project" → preview `cx new python <name>`
+//! Example: cx ask "save my work" → preview `cx save <smart-name>`
+//! Example: cx ask "how do I install docker" → AI response with command (preview only)
 
 use anyhow::Result;
 use clap::Parser;
@@ -23,6 +26,11 @@ use std::process::Command;
 
 use super::ask_context::ProjectContext;
 use super::ask_patterns::PatternMatcher;
+use super::execution_safety::{
+    execution_gate, is_read_only_cx_cli, is_read_only_shell_command, print_dry_run_preview,
+    prompt_default_yes, ExecutionGate,
+};
+use super::ops::{append_audit, record_transaction};
 use super::model_utils::{
     is_model_available as is_local_model_available, model_path, MODEL_FILENAME,
 };
@@ -56,8 +64,8 @@ pub struct AskCommand {
     #[arg(trailing_var_arg = true)]
     pub query: Vec<String>,
 
-    /// Execute the suggested commands (with confirmation)
-    #[arg(long = "do", short = 'd')]
+    /// Execute state-changing commands after preview (requires confirmation unless `-y`)
+    #[arg(long = "execute", short = 'd', visible_alias = "do")]
     pub execute: bool,
 
     /// Skip confirmation prompts (use with caution)
@@ -120,53 +128,23 @@ impl AskCommand {
                     command = command.replace("{name}", &name);
                 }
 
-                // For CX commands, execute automatically (AI-native behavior)
                 println!("{}", pattern_match.description);
-                self.execute_cx_command(&command)?;
 
-                // Return empty response since we already handled it
-                return Ok(Some("{}".to_string()));
+                if is_read_only_cx_cli(&command) {
+                    self.run_command_with_audit(&command, None)?;
+                    return Ok(Some("{}".to_string()));
+                }
+
+                let response = serde_json::json!({
+                    "status": "cx_command",
+                    "description": pattern_match.description,
+                    "command": command,
+                });
+                return Ok(Some(serde_json::to_string(&response)?));
             }
         }
 
         Ok(None)
-    }
-
-    /// Execute a CX command with optional confirmation
-    fn execute_cx_command(&self, command: &str) -> Result<()> {
-        if !self.auto_confirm {
-            eprintln!("\n  $ {}", command);
-            eprint!("\nRun this? [Y/n] ");
-            io::stderr().flush()?;
-
-            let mut input = String::new();
-            let bytes_read = io::stdin().read_line(&mut input)?;
-
-            // CX Terminal: read_line returns 0 bytes at EOF (no TTY, closed or empty
-            // pipe). EOF must never count as consent to run a command.
-            let answer = if bytes_read == 0 {
-                None
-            } else {
-                Some(input.as_str())
-            };
-            if !confirmed_default_yes(answer) {
-                if answer.is_none() {
-                    eprintln!("\nNo interactive input; not running. Re-run with -d -y to execute.");
-                } else {
-                    eprintln!("Cancelled.");
-                }
-                return Ok(());
-            }
-        }
-
-        // Execute the command
-        let status = Command::new("sh").arg("-c").arg(command).status()?;
-
-        if !status.success() {
-            eprintln!("Command failed with exit code: {:?}", status.code());
-        }
-
-        Ok(())
     }
 
     fn handle_response(&self, response: &str) -> Result<()> {
@@ -176,9 +154,7 @@ impl AskCommand {
             _ => self.print_formatted(response),
         }
 
-        if self.execute {
-            self.execute_commands(response)?;
-        }
+        self.maybe_execute_from_response(response)?;
 
         Ok(())
     }
@@ -202,6 +178,13 @@ impl AskCommand {
     }
 
     fn query_ai(&self, query: &str) -> Result<String> {
+        // Offline/demo mock (labeled; no network)
+        if let Ok(mock) = env::var("CX_ASK_MOCK_RESPONSE") {
+            if !mock.is_empty() {
+                return Ok(mock);
+            }
+        }
+
         // Try daemon first
         if let Some(response) = self.try_daemon(query)? {
             return Ok(response);
@@ -586,35 +569,69 @@ impl AskCommand {
         }
     }
 
-    fn execute_commands(&self, response: &str) -> Result<()> {
+    fn maybe_execute_from_response(&self, response: &str) -> Result<()> {
         let json: serde_json::Value = serde_json::from_str(response)?;
-
         let command = json.get("command").and_then(|c| c.as_str());
-
         let command = match command {
             Some(cmd) => cmd,
             None => return Ok(()),
         };
 
-        if !self.auto_confirm {
-            eprintln!("\nCommand to execute:");
-            eprintln!("  $ {}", command);
-            eprint!("\nProceed? [y/N] ");
-            io::stderr().flush()?;
+        let undo = json.get("undo").and_then(|u| u.as_str());
+        let read_only = is_read_only_shell_command(command);
 
-            let mut input = String::new();
-            io::stdin().read_line(&mut input)?;
-
-            if !input.trim().eq_ignore_ascii_case("y") {
-                eprintln!("Aborted.");
-                return Ok(());
-            }
+        if read_only {
+            return self.run_command_with_audit(command, undo);
         }
 
+        print_dry_run_preview(&[command]);
+
+        match execution_gate(self.execute, self.auto_confirm) {
+            ExecutionGate::PreviewOnly => {
+                append_audit(
+                    "dry_run_preview",
+                    Some(command),
+                    serde_json::json!({ "source": "cx ask" }),
+                )?;
+                return Ok(());
+            }
+            ExecutionGate::ConfirmFirst => {
+                eprintln!("\n  $ {}", command);
+                if !prompt_default_yes("\nRun this? [Y/n] ")? {
+                    eprintln!("\nNo interactive input or cancelled; not running. Use -d -y to execute without a TTY.");
+                    return Ok(());
+                }
+            }
+            ExecutionGate::RunNow => {}
+        }
+
+        self.run_command_with_audit(command, undo)
+    }
+
+    fn run_command_with_audit(&self, command: &str, undo: Option<&str>) -> Result<()> {
         eprintln!("$ {}", command);
         let status = Command::new("sh").arg("-c").arg(command).status()?;
 
-        if !status.success() {
+        let success = status.success();
+        let tx_id = if success {
+            match undo {
+                Some(undo_cmd) => Some(record_transaction(command, undo_cmd)?),
+                None => None,
+            }
+        } else {
+            None
+        };
+
+        append_audit(
+            if success { "execute" } else { "execute_failed" },
+            Some(command),
+            serde_json::json!({
+                "exit_code": status.code(),
+                "transaction_id": tx_id,
+            }),
+        )?;
+
+        if !success {
             eprintln!("Command failed with exit code: {:?}", status.code());
         }
 
@@ -622,24 +639,27 @@ impl AskCommand {
     }
 }
 
-/// CX Terminal: interpret the answer to a `[Y/n]` prompt.
-///
-/// `None` means stdin hit EOF before any input (non-interactive use) and is
-/// always a refusal. An empty line (user pressed Enter) or `y`/`Y` confirms;
-/// anything else refuses.
-fn confirmed_default_yes(answer: Option<&str>) -> bool {
-    match answer {
-        None => false,
-        Some(line) => {
-            let line = line.trim();
-            line.is_empty() || line.eq_ignore_ascii_case("y")
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::cli::execution_safety::{confirmed_default_yes, execution_gate, ExecutionGate};
+    use super::AskCommand;
+
+    #[test]
+    fn default_is_preview_only() {
+        assert_eq!(
+            execution_gate(false, false),
+            ExecutionGate::PreviewOnly
+        );
+    }
+
+    #[test]
+    fn explicit_execute_flag_enables_run_path() {
+        assert_eq!(execution_gate(true, true), ExecutionGate::RunNow);
+        assert_eq!(
+            execution_gate(true, false),
+            ExecutionGate::ConfirmFirst
+        );
+    }
 
     #[test]
     fn eof_is_never_consent() {
