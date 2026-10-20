@@ -61,53 +61,64 @@ pub fn sandbox_backend_label(backend: SandboxBackend) -> &'static str {
 
 /// Run `command` under a sandbox when possible; otherwise run on the host after emitting a warning.
 pub fn run_sandboxed_shell(command: &str) -> Result<ExitStatus> {
+    run_sandboxed_shell_in(command, None)
+}
+
+/// Run `command` in `cwd` when provided (undo uses the original working directory).
+pub fn run_sandboxed_shell_in(command: &str, cwd: Option<&Path>) -> Result<ExitStatus> {
     if std::env::var_os("CX_DISABLE_SANDBOX").is_some() {
         eprintln!("WARNING: CX_DISABLE_SANDBOX is set; running on host without sandbox.");
-        return run_host_shell(command);
+        return run_host_shell_in(command, cwd);
     }
 
     let backend = detect_sandbox_backend();
     match backend {
-        SandboxBackend::Firejail => run_firejail(command),
-        SandboxBackend::Bubblewrap => run_bubblewrap(command),
+        SandboxBackend::Firejail => run_firejail_in(command, cwd),
+        SandboxBackend::Bubblewrap => run_bubblewrap_in(command, cwd),
         SandboxBackend::None => {
             eprintln!("WARNING: Neither firejail nor bubblewrap (bwrap) was found on PATH.");
             eprintln!(
                 "         Command will run on the host without a sandbox. Install firejail or bubblewrap for isolation."
             );
-            run_host_shell(command)
+            run_host_shell_in(command, cwd)
         }
     }
 }
 
-fn run_host_shell(command: &str) -> Result<ExitStatus> {
-    Command::new("sh")
-        .arg("-c")
-        .arg(command)
-        .status()
-        .context("failed to run shell command on host")
+fn apply_cwd(cmd: &mut Command, cwd: Option<&Path>) -> Result<()> {
+    if let Some(dir) = cwd {
+        cmd.current_dir(dir);
+    }
+    Ok(())
+}
+
+fn run_host_shell_in(command: &str, cwd: Option<&Path>) -> Result<ExitStatus> {
+    let mut cmd = Command::new("sh");
+    cmd.arg("-c").arg(command);
+    apply_cwd(&mut cmd, cwd)?;
+    cmd.status().context("failed to run shell command on host")
 }
 
 /// Conservative firejail profile: private tmp, no network, drop caps, then user command.
-fn run_firejail(command: &str) -> Result<ExitStatus> {
+fn run_firejail_in(command: &str, cwd: Option<&Path>) -> Result<ExitStatus> {
     eprintln!("(sandbox: firejail — private-tmp, net=none, caps dropped)");
-    Command::new("firejail")
-        .args([
-            "--quiet",
-            "--private-tmp",
-            "--net=none",
-            "--caps.drop=all",
-            "--",
-            "sh",
-            "-c",
-            command,
-        ])
-        .status()
-        .context("firejail failed to start")
+    let mut cmd = Command::new("firejail");
+    cmd.args([
+        "--quiet",
+        "--private-tmp",
+        "--net=none",
+        "--caps.drop=all",
+        "--",
+        "sh",
+        "-c",
+        command,
+    ]);
+    apply_cwd(&mut cmd, cwd)?;
+    cmd.status().context("firejail failed to start")
 }
 
 /// Minimal bubblewrap: read-only system roots, writable /tmp, no new privileges.
-fn run_bubblewrap(command: &str) -> Result<ExitStatus> {
+fn run_bubblewrap_in(command: &str, cwd: Option<&Path>) -> Result<ExitStatus> {
     eprintln!("(sandbox: bubblewrap — read-only bind mounts, tmpfs /tmp)");
     let mut cmd = Command::new("bwrap");
     for bind in ["/usr", "/bin", "/lib", "/lib64", "/etc", "/sbin"] {
@@ -129,6 +140,10 @@ fn run_bubblewrap(command: &str) -> Result<ExitStatus> {
         "-c",
         command,
     ]);
+    if let Some(dir) = cwd {
+        cmd.env("PWD", dir);
+    }
+    apply_cwd(&mut cmd, cwd)?;
     cmd.status().context("bubblewrap failed to start")
 }
 

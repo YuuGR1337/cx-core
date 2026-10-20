@@ -7,7 +7,8 @@ Licensed under the Business Source License 1.1
 
 use std::io::{self, Write};
 
-/// True when a matched or suggested `cx` CLI invocation is read-only and may run without `--execute`.
+/// True when a **pattern-matched** `cx …` invocation is read-only (may run without `--execute`).
+/// Does not apply to arbitrary AI-suggested shell text.
 pub fn is_read_only_cx_cli(command: &str) -> bool {
     let cmd = command.trim();
     cmd.starts_with("cx snapshots -l")
@@ -15,48 +16,18 @@ pub fn is_read_only_cx_cli(command: &str) -> bool {
         || cmd == "cx new --list"
         || cmd.starts_with("cx daemon status")
         || cmd.starts_with("cx daemon health")
-        || cmd.starts_with("cx daemon alerts")
 }
 
-/// True when a shell command is treated as read-only (introspection only).
-pub fn is_read_only_shell_command(command: &str) -> bool {
-    let cmd = command.trim();
-    if cmd.is_empty() {
-        return true;
+/// Whether stdin is an interactive terminal (required for confirmation prompts).
+pub fn stdin_is_interactive() -> bool {
+    #[cfg(unix)]
+    {
+        unsafe { libc::isatty(libc::STDIN_FILENO) == 1 }
     }
-    if is_read_only_cx_cli(cmd) {
-        return true;
+    #[cfg(not(unix))]
+    {
+        false
     }
-
-    let first = cmd
-        .split_whitespace()
-        .next()
-        .unwrap_or("")
-        .to_ascii_lowercase();
-
-    matches!(
-        first.as_str(),
-        "ls" | "cat"
-            | "head"
-            | "tail"
-            | "pwd"
-            | "whoami"
-            | "df"
-            | "free"
-            | "echo"
-            | "which"
-            | "type"
-            | "date"
-            | "uptime"
-            | "id"
-            | "groups"
-            | "printenv"
-            | "env"
-    ) || cmd.starts_with("git status")
-        || cmd.starts_with("git log")
-        || cmd.starts_with("git branch")
-        || cmd.starts_with("docker ps")
-        || cmd.starts_with("docker images")
 }
 
 /// Print the dry-run preview banner and exact command(s).
@@ -151,13 +122,7 @@ mod tests {
         assert!(is_read_only_cx_cli("cx snapshots -l"));
         assert!(is_read_only_cx_cli("cx new --list"));
         assert!(!is_read_only_cx_cli("cx save my-work"));
-    }
-
-    #[test]
-    fn read_only_shell_introspection() {
-        assert!(is_read_only_shell_command("ls -la"));
-        assert!(is_read_only_shell_command("git status"));
-        assert!(!is_read_only_shell_command("rm -rf /"));
+        assert!(!is_read_only_cx_cli("cx daemon alerts --acknowledge-all"));
     }
 
     #[test]

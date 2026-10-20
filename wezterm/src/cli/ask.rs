@@ -28,8 +28,8 @@ use super::ask_context::ProjectContext;
 use super::ask_patterns::PatternMatcher;
 use super::command_sandbox::{detect_sandbox_backend, run_sandboxed_shell, sandbox_backend_label};
 use super::execution_safety::{
-    effective_auto_confirm, execution_gate, is_read_only_cx_cli, is_read_only_shell_command,
-    print_dry_run_preview, prompt_default_no, ExecutionGate,
+    effective_auto_confirm, execution_gate, is_read_only_cx_cli, print_dry_run_preview,
+    prompt_default_no, stdin_is_interactive, ExecutionGate,
 };
 use super::model_utils::{
     is_model_available as is_local_model_available, model_path, MODEL_FILENAME,
@@ -585,9 +585,10 @@ impl AskCommand {
         };
 
         let undo = json.get("undo").and_then(|u| u.as_str());
-        let read_only = is_read_only_shell_command(command);
+        let from_cx_pattern = json.get("status").and_then(|s| s.as_str()) == Some("cx_command");
 
-        if read_only {
+        // Only pattern-matched read-only `cx …` lines may auto-run; never auto-run AI shell text.
+        if from_cx_pattern && is_read_only_cx_cli(command) {
             return self.run_command_with_audit(command, undo);
         }
 
@@ -604,6 +605,12 @@ impl AskCommand {
                 return Ok(());
             }
             ExecutionGate::ConfirmFirst => {
+                if !stdin_is_interactive() {
+                    eprintln!(
+                        "\nNon-interactive stdin; not running. Use: cx ask --execute -y \"…\""
+                    );
+                    return Ok(());
+                }
                 eprintln!("\n  $ {}", command);
                 if !prompt_default_no("\nRun this? [y/N] ")? {
                     eprintln!("\nCancelled or no input (default is No). Use --execute (-d) and type y, or -d -y without a TTY.");

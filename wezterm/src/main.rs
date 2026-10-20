@@ -201,7 +201,7 @@ enum SubCommand {
         name = "clean-local-data",
         about = "Remove ~/.cx local data (removable / local-first)"
     )]
-    CleanLocalData,
+    CleanLocalData(cli::ops::CleanLocalDataCommand),
 
     /// Catch-all: route unrecognized input to `cx ask` for natural language processing.
     /// This allows `cx "analyze logs"` to work the same as `cx ask "analyze logs"`.
@@ -838,7 +838,7 @@ fn run() -> anyhow::Result<()> {
         SubCommand::AI(cmd) => cmd.run(),
         SubCommand::Undo(cmd) => cmd.run(),
         SubCommand::Audit(cmd) => cmd.run(),
-        SubCommand::CleanLocalData => cli::ops::clean_local_data(),
+        SubCommand::CleanLocalData(cmd) => cmd.run(),
         // Catch-all: route unrecognized commands to cx ask
         // This makes `cx "analyze logs"` work like `cx ask "analyze logs"`
         SubCommand::NaturalLanguage(args) => {
