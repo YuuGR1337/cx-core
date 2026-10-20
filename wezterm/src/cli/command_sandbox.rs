@@ -71,9 +71,7 @@ pub fn run_sandboxed_shell(command: &str) -> Result<ExitStatus> {
         SandboxBackend::Firejail => run_firejail(command),
         SandboxBackend::Bubblewrap => run_bubblewrap(command),
         SandboxBackend::None => {
-            eprintln!(
-                "WARNING: Neither firejail nor bubblewrap (bwrap) was found on PATH."
-            );
+            eprintln!("WARNING: Neither firejail nor bubblewrap (bwrap) was found on PATH.");
             eprintln!(
                 "         Command will run on the host without a sandbox. Install firejail or bubblewrap for isolation."
             );

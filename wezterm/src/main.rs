@@ -197,7 +197,10 @@ enum SubCommand {
     Audit(cli::ops::AuditCommand),
 
     /// Remove local CX data under ~/.cx (audit log, transactions; does not remove the package)
-    #[command(name = "clean-local-data", about = "Remove ~/.cx local data (removable / local-first)")]
+    #[command(
+        name = "clean-local-data",
+        about = "Remove ~/.cx local data (removable / local-first)"
+    )]
     CleanLocalData,
 
     /// Catch-all: route unrecognized input to `cx ask` for natural language processing.

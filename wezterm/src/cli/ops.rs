@@ -5,13 +5,13 @@ Licensed under the Business Source License 1.1
 
 //! Local-first audit log and reversible operation history for CX CLI actions.
 
+use super::command_sandbox::run_sandboxed_shell;
 use anyhow::{Context, Result};
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
-use super::command_sandbox::run_sandboxed_shell;
 
 const AUDIT_LOG: &str = "audit.log";
 const TRANSACTIONS_LOG: &str = "transactions.jsonl";

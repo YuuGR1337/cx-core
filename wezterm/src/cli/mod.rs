@@ -29,12 +29,12 @@ pub mod ask;
 pub mod ask_context;
 pub mod ask_patterns;
 pub mod command_sandbox;
-pub mod execution_safety;
-pub mod ops;
 pub mod daemon;
+pub mod execution_safety;
 pub mod license;
 pub mod model_utils;
 pub mod new;
+pub mod ops;
 pub mod shortcuts;
 pub mod snapshot;
 

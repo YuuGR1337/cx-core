@@ -31,10 +31,10 @@ use super::execution_safety::{
     effective_auto_confirm, execution_gate, is_read_only_cx_cli, is_read_only_shell_command,
     print_dry_run_preview, prompt_default_no, ExecutionGate,
 };
-use super::ops::{append_audit, record_transaction};
 use super::model_utils::{
     is_model_available as is_local_model_available, model_path, MODEL_FILENAME,
 };
+use super::ops::{append_audit, record_transaction};
 
 const CX_SYSTEM_PROMPT: &str = r#"You are a Linux command expert assistant. You can either:
 1. Answer directly if you have the knowledge
@@ -92,7 +92,9 @@ const CX_USER_SOCKET_TEMPLATE: &str = "/run/user/{}/cx/daemon.sock";
 impl AskCommand {
     pub fn run(&self) -> Result<()> {
         if self.auto_confirm && !self.execute {
-            eprintln!("Note: -y is ignored without --execute (-d). Commands stay in dry-run preview.");
+            eprintln!(
+                "Note: -y is ignored without --execute (-d). Commands stay in dry-run preview."
+            );
         }
 
         let query = self.query.join(" ");
@@ -649,31 +651,22 @@ impl AskCommand {
 
 #[cfg(test)]
 mod tests {
+    use super::AskCommand;
     use crate::cli::execution_safety::{
         confirmed_default_no, confirmed_default_yes, effective_auto_confirm, execution_gate,
         ExecutionGate,
     };
-    use super::AskCommand;
 
     #[test]
     fn default_is_preview_only() {
-        assert_eq!(
-            execution_gate(false, false),
-            ExecutionGate::PreviewOnly
-        );
+        assert_eq!(execution_gate(false, false), ExecutionGate::PreviewOnly);
     }
 
     #[test]
     fn explicit_execute_flag_enables_run_path() {
         assert_eq!(execution_gate(true, true), ExecutionGate::RunNow);
-        assert_eq!(
-            execution_gate(true, false),
-            ExecutionGate::ConfirmFirst
-        );
-        assert_eq!(
-            execution_gate(false, true),
-            ExecutionGate::PreviewOnly
-        );
+        assert_eq!(execution_gate(true, false), ExecutionGate::ConfirmFirst);
+        assert_eq!(execution_gate(false, true), ExecutionGate::PreviewOnly);
     }
 
     #[test]

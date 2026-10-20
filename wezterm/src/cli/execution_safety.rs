@@ -162,20 +162,14 @@ mod tests {
 
     #[test]
     fn execution_gate_preview_by_default() {
-        assert_eq!(
-            execution_gate(false, false),
-            ExecutionGate::PreviewOnly
-        );
+        assert_eq!(execution_gate(false, false), ExecutionGate::PreviewOnly);
         assert_eq!(
             execution_gate(false, true),
             ExecutionGate::PreviewOnly,
             "-y without --execute must not run"
         );
         assert_eq!(execution_gate(true, true), ExecutionGate::RunNow);
-        assert_eq!(
-            execution_gate(true, false),
-            ExecutionGate::ConfirmFirst
-        );
+        assert_eq!(execution_gate(true, false), ExecutionGate::ConfirmFirst);
     }
 
     #[test]
