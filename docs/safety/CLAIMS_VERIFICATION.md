@@ -7,13 +7,15 @@ Branch: `cursor/safety-dry-run-demo-4556` (draft PR). PR #772 (**EOF is not cons
 | Claim | Verdict | Evidence | Test / transcript |
 |-------|---------|----------|-------------------|
 | **Dry-run by default** (`cx ask`) | **PASS** (this PR) | `wezterm/src/cli/execution_safety.rs`, `wezterm/src/cli/ask.rs` | Unit: `execution_gate` / `default_is_preview_only` in `execution_safety.rs` and `ask.rs` tests. Demo: `demo/safety-demo.sh` step 1 (`</dev/null`, no marker file). |
-| **Non-interactive / EOF never executes** | **PASS** | `execution_safety::confirmed_default_yes(None) == false`; `ask.rs` uses `prompt_default_yes` | Unit: `eof_is_never_consent` (carried from #772). `execute` path requires `-d` and TTY confirm or `-y`. |
-| **Explicit `--execute` / `-y` runs** | **PASS** (this PR) | `AskCommand::execute` (`--execute`, `-d`) + `auto_confirm` (`-y`) | Unit: `explicit_execute_flag_enables_run_path`. Demo step 2. |
-| **Firejail / AppArmor sandboxing** | **FAIL** (not implemented) | `rg firejail\|apparmor` → no matches in product code | N/A — marketing claim not backed by code paths. |
+| **Non-interactive / EOF never executes** | **PASS** | All execution prompts use **`[y/N]`** (default **No**); EOF → `confirmed_default_no(None) == false` | Unit: `default_no_prompt_requires_explicit_y`, `eof_is_never_consent`. |
+| **`-y` without `--execute`** | **PASS** | `effective_auto_confirm` + `execution_gate(false, true) == PreviewOnly`; stderr note in `AskCommand::run` | Unit: `y_without_execute_does_not_auto_confirm`. |
+| **Explicit `--execute` + confirm or `-d -y`** | **PASS** | `AskCommand::execute`; `cx install`/`setup`/`fix` no longer imply `--execute` | Unit: `explicit_execute_flag_enables_run_path`. Demo step 2. |
+| **Firejail / bubblewrap sandboxing** | **PARTIAL** | `wezterm/src/cli/command_sandbox.rs` wraps `cx ask` / `cx undo` shell runs; **warns** and runs on host if neither tool is on PATH | No AppArmor profiles. Set `CX_DISABLE_SANDBOX=1` to force host (also warns). |
+| **AppArmor** | **FAIL** (not implemented) | No AppArmor integration in cx-core | N/A |
 | **Transaction history + undo** | **PARTIAL → PASS for `cx ask`** | `wezterm/src/cli/ops.rs` (`transactions.jsonl`), `cx undo` | Demo step 4. `cx save`/`restore` remain stubs (`wezterm/src/cli/snapshot.rs`). Security patches: `wezterm/src/cli/security/patcher.rs::rollback_patch`. |
 | **Audit log** | **PARTIAL** | CLI: `~/.cx/audit.log` via `ops.rs`, `cx audit`. Python alert manager: `cx/system_alert_manager.py` (`audit_operation` decorator) — separate subsystem. | Demo step 3. Python: `tests/test_system_alert_manager_enterprise.py::test_audit_logging`. |
 | **Offline fallback** | **PARTIAL** | Pattern matcher + `CX_ASK_MOCK_RESPONSE` + local GGUF (`ask.rs::query_local`) + Ollama env | Without model/API, `query_ai` returns `no_ai` hint. Demo uses labeled mock. |
-| **Clean uninstall / removable** | **PARTIAL** | Debian `prerm` removes alternatives (`ci/deploy.sh`); local data: `ops::clean_local_data` (not wired to CLI yet) | `dpkg -r` path documented in packaging; no `cx uninstall` command. |
+| **Clean uninstall / removable** | **PARTIAL** | Debian `prerm` removes alternatives (`ci/deploy.sh`); `cx clean-local-data` | `dpkg -r` for package; see `MODEL_DOWNLOAD_SOURCES.md` for HF default model (unchanged). |
 
 ## PR #774 coordination
 

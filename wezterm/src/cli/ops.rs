@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
-use std::process::Command;
+use super::command_sandbox::run_sandboxed_shell;
 
 const AUDIT_LOG: &str = "audit.log";
 const TRANSACTIONS_LOG: &str = "transactions.jsonl";
@@ -115,11 +115,7 @@ pub fn undo_last_transaction() -> Result<()> {
     eprintln!("Undoing {} ({})", record.id, record.command);
     eprintln!("  $ {}", record.undo);
 
-    let status = Command::new("sh")
-        .arg("-c")
-        .arg(&record.undo)
-        .status()
-        .context("failed to run undo command")?;
+    let status = run_sandboxed_shell(&record.undo).context("failed to run undo command")?;
 
     if !status.success() {
         anyhow::bail!("Undo command failed with {:?}", status.code());

@@ -26,9 +26,10 @@ use std::process::Command;
 
 use super::ask_context::ProjectContext;
 use super::ask_patterns::PatternMatcher;
+use super::command_sandbox::{detect_sandbox_backend, run_sandboxed_shell, sandbox_backend_label};
 use super::execution_safety::{
-    execution_gate, is_read_only_cx_cli, is_read_only_shell_command, print_dry_run_preview,
-    prompt_default_yes, ExecutionGate,
+    effective_auto_confirm, execution_gate, is_read_only_cx_cli, is_read_only_shell_command,
+    print_dry_run_preview, prompt_default_no, ExecutionGate,
 };
 use super::ops::{append_audit, record_transaction};
 use super::model_utils::{
@@ -68,7 +69,7 @@ pub struct AskCommand {
     #[arg(long = "execute", short = 'd', visible_alias = "do")]
     pub execute: bool,
 
-    /// Skip confirmation prompts (use with caution)
+    /// Skip confirmation after `--execute` (ignored without `--execute` / `-d`)
     #[arg(long = "yes", short = 'y')]
     pub auto_confirm: bool,
 
@@ -90,6 +91,10 @@ const CX_USER_SOCKET_TEMPLATE: &str = "/run/user/{}/cx/daemon.sock";
 
 impl AskCommand {
     pub fn run(&self) -> Result<()> {
+        if self.auto_confirm && !self.execute {
+            eprintln!("Note: -y is ignored without --execute (-d). Commands stay in dry-run preview.");
+        }
+
         let query = self.query.join(" ");
 
         if query.is_empty() {
@@ -586,7 +591,8 @@ impl AskCommand {
 
         print_dry_run_preview(&[command]);
 
-        match execution_gate(self.execute, self.auto_confirm) {
+        let auto = effective_auto_confirm(self.execute, self.auto_confirm);
+        match execution_gate(self.execute, auto) {
             ExecutionGate::PreviewOnly => {
                 append_audit(
                     "dry_run_preview",
@@ -597,8 +603,8 @@ impl AskCommand {
             }
             ExecutionGate::ConfirmFirst => {
                 eprintln!("\n  $ {}", command);
-                if !prompt_default_yes("\nRun this? [Y/n] ")? {
-                    eprintln!("\nNo interactive input or cancelled; not running. Use -d -y to execute without a TTY.");
+                if !prompt_default_no("\nRun this? [y/N] ")? {
+                    eprintln!("\nCancelled or no input (default is No). Use --execute (-d) and type y, or -d -y without a TTY.");
                     return Ok(());
                 }
             }
@@ -610,7 +616,8 @@ impl AskCommand {
 
     fn run_command_with_audit(&self, command: &str, undo: Option<&str>) -> Result<()> {
         eprintln!("$ {}", command);
-        let status = Command::new("sh").arg("-c").arg(command).status()?;
+        let backend = detect_sandbox_backend();
+        let status = run_sandboxed_shell(command)?;
 
         let success = status.success();
         let tx_id = if success {
@@ -628,6 +635,7 @@ impl AskCommand {
             serde_json::json!({
                 "exit_code": status.code(),
                 "transaction_id": tx_id,
+                "sandbox": sandbox_backend_label(backend),
             }),
         )?;
 
@@ -641,7 +649,10 @@ impl AskCommand {
 
 #[cfg(test)]
 mod tests {
-    use crate::cli::execution_safety::{confirmed_default_yes, execution_gate, ExecutionGate};
+    use crate::cli::execution_safety::{
+        confirmed_default_no, confirmed_default_yes, effective_auto_confirm, execution_gate,
+        ExecutionGate,
+    };
     use super::AskCommand;
 
     #[test]
@@ -659,25 +670,35 @@ mod tests {
             execution_gate(true, false),
             ExecutionGate::ConfirmFirst
         );
+        assert_eq!(
+            execution_gate(false, true),
+            ExecutionGate::PreviewOnly
+        );
+    }
+
+    #[test]
+    fn y_without_execute_does_not_auto_confirm() {
+        assert!(!effective_auto_confirm(false, true));
     }
 
     #[test]
     fn eof_is_never_consent() {
         assert!(!confirmed_default_yes(None));
+        assert!(!confirmed_default_no(None));
     }
 
     #[test]
-    fn enter_and_y_confirm() {
-        assert!(confirmed_default_yes(Some("\n")));
-        assert!(confirmed_default_yes(Some("y\n")));
-        assert!(confirmed_default_yes(Some("Y")));
+    fn default_no_prompt_requires_explicit_y() {
+        assert!(!confirmed_default_no(Some("\n")));
+        assert!(!confirmed_default_no(Some("")));
+        assert!(confirmed_default_no(Some("y\n")));
+        assert!(confirmed_default_no(Some("Y")));
     }
 
     #[test]
-    fn other_answers_refuse() {
-        assert!(!confirmed_default_yes(Some("n\n")));
-        assert!(!confirmed_default_yes(Some("no")));
-        assert!(!confirmed_default_yes(Some("yes please")));
+    fn default_no_refuses_other_answers() {
+        assert!(!confirmed_default_no(Some("n\n")));
+        assert!(!confirmed_default_no(Some("yes please")));
     }
 
     #[test]

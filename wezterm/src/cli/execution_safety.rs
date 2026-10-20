@@ -72,14 +72,21 @@ pub fn print_dry_run_preview(commands: &[&str]) {
 }
 
 /// Whether execution is allowed for a state-changing command.
+///
+/// `-y` / `auto_confirm` is ignored unless `execute_flag` is set — preview-only stays preview-only.
 pub fn execution_gate(execute_flag: bool, auto_confirm: bool) -> ExecutionGate {
     if !execute_flag {
         return ExecutionGate::PreviewOnly;
     }
-    if auto_confirm {
+    if auto_confirm && execute_flag {
         return ExecutionGate::RunNow;
     }
     ExecutionGate::ConfirmFirst
+}
+
+/// Effective auto-confirm: `-y` only applies together with `--execute` / `-d`.
+pub fn effective_auto_confirm(execute_flag: bool, auto_confirm: bool) -> bool {
+    execute_flag && auto_confirm
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -159,11 +166,22 @@ mod tests {
             execution_gate(false, false),
             ExecutionGate::PreviewOnly
         );
+        assert_eq!(
+            execution_gate(false, true),
+            ExecutionGate::PreviewOnly,
+            "-y without --execute must not run"
+        );
         assert_eq!(execution_gate(true, true), ExecutionGate::RunNow);
         assert_eq!(
             execution_gate(true, false),
             ExecutionGate::ConfirmFirst
         );
+    }
+
+    #[test]
+    fn effective_auto_confirm_requires_execute() {
+        assert!(!effective_auto_confirm(false, true));
+        assert!(effective_auto_confirm(true, true));
     }
 
     #[test]
