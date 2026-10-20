@@ -174,9 +174,8 @@ pub async fn activate_license(license_key: &str) -> Result<LicenseInfo, String> 
 
 /// Check if the current installation has a valid license
 pub async fn check_license() -> Result<LicenseInfo, String> {
-    let license_key =
-        read_license_key()
-            .ok_or_else(|| format!("No license key found. Run `{}` first.", ACTIVATE_USAGE))?;
+    let license_key = read_license_key()
+        .ok_or_else(|| format!("No license key found. Run `{}` first.", ACTIVATE_USAGE))?;
     validate_license(&license_key).await
 }
 

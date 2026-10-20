@@ -245,7 +245,14 @@ fn ensure_tree(probe: &str, submodule_path: &str) {
     let root = repo_root();
     let status = std::process::Command::new("git")
         .current_dir(&root)
-        .args(["submodule", "update", "--init", "--depth", "1", submodule_path])
+        .args([
+            "submodule",
+            "update",
+            "--init",
+            "--depth",
+            "1",
+            submodule_path,
+        ])
         .status()
         .expect("failed to spawn git for freetype submodules");
     if !status.success() || !Path::new(probe).exists() {

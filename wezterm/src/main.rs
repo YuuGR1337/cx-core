@@ -193,7 +193,10 @@ enum SubCommand {
     Activate(cli::ActivateCommand),
 
     /// License status; use `cx license activate` as an alias of `cx activate`
-    #[command(name = "license", about = "Show license status or activate via subcommand")]
+    #[command(
+        name = "license",
+        about = "Show license status or activate via subcommand"
+    )]
     License(cli::LicenseCommand),
 
     /// Catch-all: route unrecognized input to `cx ask` for natural language processing.

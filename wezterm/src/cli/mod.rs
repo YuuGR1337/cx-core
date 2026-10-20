@@ -354,10 +354,7 @@ async fn print_license_status() -> anyhow::Result<()> {
         }
         Err(e) => {
             eprintln!("\n❌ No valid license: {}", e);
-            eprintln!(
-                "\nTo activate a license, run: {}",
-                license::ACTIVATE_USAGE
-            );
+            eprintln!("\nTo activate a license, run: {}", license::ACTIVATE_USAGE);
             Err(anyhow!(e))
         }
     }
