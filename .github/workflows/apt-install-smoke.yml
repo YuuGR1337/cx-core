@@ -22,7 +22,14 @@ jobs:
       - name: Run official APT install (host)
         run: |
           set -euxo pipefail
-          sudo bash ci/apt-install-smoke.sh ubuntu
+          sudo bash ci/apt-install-smoke.sh ubuntu 2>&1 | tee apt-install-ubuntu-24.04.log
+
+      - name: Upload verification log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-logs-ubuntu
+          path: apt-install-ubuntu-24.04.log
 
   debian-12:
     name: apt install (debian:12)
@@ -35,7 +42,14 @@ jobs:
         run: |
           set -euxo pipefail
           docker run --rm -v "$PWD/ci/apt-install-smoke.sh:/apt-install-smoke.sh:ro" debian:12 \
-            bash /apt-install-smoke.sh debian
+            bash /apt-install-smoke.sh debian 2>&1 | tee apt-install-debian-12.log
+
+      - name: Upload verification log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-logs-debian12
+          path: apt-install-debian-12.log
 
       - name: Document Debian 12 blocker
         if: failure()

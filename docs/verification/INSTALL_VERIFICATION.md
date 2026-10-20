@@ -2,11 +2,9 @@
 
 Commands follow [README.md](../../README.md) **APT Repository (Recommended)** exactly.
 
-## Ubuntu 24.04 — **PASS**
+**Summary:** see [VERIFICATION_SUMMARY.md](./VERIFICATION_SUMMARY.md). Raw logs: CI artifact `verification-logs` on PR [#774](https://github.com/cxlinux-ai/cx-core/pull/774).
 
-```bash
-docker run --rm ubuntu:24.04 bash -c '<install script>'
-```
+## Ubuntu 24.04 — **PASS**
 
 | Step | Result |
 |------|--------|
@@ -16,17 +14,11 @@ docker run --rm ubuntu:24.04 bash -c '<install script>'
 | Package version | `20260223-145346-e97bbc7b` (deb `0.3.2` lineage) |
 | `cx-terminal --version` | `cx-terminal 20260223-145346-e97bbc7b` |
 | `cx-terminal --help` | PASS (ask, install, setup, what, fix, ai, …) |
-| `cx --version` / `cx --help` | **FAIL** — no `/usr/bin/cx` on current published package (fixed in `ci/deploy.sh` postinst for next release) |
-| `cx-terminal activate` | **FAIL** on published build — subcommand missing at top level (fixed in `wezterm/src/main.rs` for next release) |
-| `cx-terminal cli activate` | Reaches license server after mux bypass fix in this PR; published build fails spawning `wezterm-mux-server` (package ships `cx-mux-server`) |
+| `cx --version` / `cx --help` | **FAIL** on published package — no `/usr/bin/cx` (fixed in `ci/deploy.sh` postinst for next release) |
+| `cx-terminal activate` | **FAIL** on published build — subcommand missing at top level (fixed in `wezterm/src/main.rs`) |
+| `cx-terminal cli activate` | Published build fails spawning `wezterm-mux-server` (package ships `cx-mux-server`; fixed in this PR) |
 
-Full transcript: [apt-install-ubuntu-24.04.log](./apt-install-ubuntu-24.04.log)
-
-## Debian 12 (bookworm) — **FAIL**
-
-```bash
-docker run --rm debian:12 bash -c '<install script>'
-```
+## Debian 12 (bookworm) — **FAIL** (published APT)
 
 `apt-get install cx-terminal` errors:
 
@@ -37,9 +29,7 @@ cx-terminal : Depends: libc6 (>= 2.39) but 2.36-9+deb12u14 is to be installed
 E: Unable to correct problems, you have held broken packages.
 ```
 
-Full transcript: [apt-install-debian-12.log](./apt-install-debian-12.log)
-
-**Blocker:** publish a Bookworm-built `.deb` (or lower glibc/openssl deps) before advertising Debian 12 APT support.
+**Blocker:** publish a Bookworm-built `.deb` (or lower glibc/openssl deps) before advertising Debian 12 APT support. This PR adds a **local/CI** Bookworm minimal CLI package only.
 
 ## CI
 

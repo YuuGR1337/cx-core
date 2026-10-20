@@ -10,6 +10,11 @@ export TAG_NAME="${TAG_NAME:-bookworm-$(git rev-parse --short=8 HEAD 2>/dev/null
 
 echo "=== Bookworm deb build (TAG_NAME=$TAG_NAME) ==="
 
+if command -v git >/dev/null 2>&1; then
+  git submodule update --init --depth 1 \
+    deps/freetype/zlib deps/freetype/libpng deps/freetype/freetype2 2>/dev/null || true
+fi
+
 if [[ -f /etc/os-release ]]; then
   # shellcheck disable=SC1091
   . /etc/os-release
