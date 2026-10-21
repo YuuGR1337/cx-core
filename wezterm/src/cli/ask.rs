@@ -335,9 +335,11 @@ impl AskCommand {
             .with_n_threads_batch(4);
         let mut ctx = model.new_context(&backend, ctx_params)?;
 
-        // CX Terminal: Restore stderr now that model loading is complete
-        #[cfg(unix)]
-        drop(_stderr_guard);
+        // CX Terminal: keep stderr silenced until this function returns. `_stderr_guard`
+        // is declared before `backend`, `model` and `ctx`, so it drops after them and
+        // llama.cpp's teardown logging (`~llama_context: ...`) no longer reaches the
+        // user. Errors are returned, not printed, so nothing useful is hidden; use
+        // `--verbose` to see llama.cpp output.
 
         // CX Terminal: Augment system prompt with project context for better responses
         let context = ProjectContext::detect();
@@ -382,11 +384,12 @@ impl AskCommand {
         for _ in 0..max_tokens {
             let candidates = ctx.candidates();
             let mut candidates_data = LlamaTokenDataArray::from_iter(candidates, false);
-            let seed = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .map(|d| d.as_nanos() as u32)
-                .unwrap_or(42);
-            let token = candidates_data.sample_token(seed);
+            // CX Terminal: greedy decoding. Sampling the full distribution with a
+            // clock seed (temperature 1.0) gave a different command list on every
+            // run, sometimes adding interactive tools like `top` to "show memory
+            // usage". Shell suggestions should be the model's single best answer and
+            // the same answer each time.
+            let token = candidates_data.sample_token_greedy();
 
             if model.is_eog_token(token) {
                 break;
