@@ -18,5 +18,5 @@ Committed reference recording: `cx-30s.gif` (29 s) with its preflight transcript
 ## What is and isn't in the frame
 
 - Every answer is produced live by the backend at recording time. The local model decodes greedily, so it gives the same answer for the same prompt; cloud backends may vary.
-- The model's thinking time is cut (`Hide`/`Show` in the tape). `time` stays on screen so the real latency of the recording machine is visible. Reference: about 50–60 s per answer for the local 7B model on a 2-vCPU cloud VM; expect less on a laptop with more cores, and a few seconds with the Claude API.
+- The model's thinking time is cut (`Hide`/`Show` in the tape). `time` stays on screen so the real latency of the recording machine is visible. Reference: about 50–60 s per answer for the local 7B model on a 2-vCPU cloud VM. Other hardware and the cloud backends were not measured.
 - Not shown: the GUI "Tab moment" (instant fuzzy suggestions). It is not wired into the running terminal yet, so there is nothing real to record.
