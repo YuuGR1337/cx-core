@@ -99,3 +99,30 @@
 
 ### Next
 - Day 3: after N16, confirm main's `debian11_continuous` goes green; re-check Dependabot; P6/P7 (#774 install smoke review, demo tape).
+
+## Day 3 — Wed 2026-10-21 (11:25 MT)
+
+### Shipped / verified
+| What | Proof |
+|---|---|
+| **P6 — install.sh run end-to-end** in clean Ubuntu 24.04, Ubuntu 22.04 and Debian 12 containers (root + sudo user). Defects found and fixed in the repo that owns it: fallback installed Codaxy's unrelated npm `cx-cli`; Homebrew auto-install on macOS; non-Debian distros continued; on glibc < 2.39 or arm64 the script added the APT repo and then failed inside apt; the package ships no `cx` command although every suggestion runs `cx …`; quick start advertised commands that need AI without saying so | [cx-web #62](https://github.com/cxlinux-ai/cx-web/pull/62) `38ca57f` (into #60's branch). Before/after transcripts per distro; `shellcheck` clean; vitest 10/10 |
+| **Real local AI validated for the first time in this week's runs** — `cx ai download` fetched `cxlinux-ai-7b-Q4_K_M.gguf` from HuggingFace in 2 m 57 s and `cx ask` answers offline | `cx ask 'how do I check disk usage'` → `df -h`, `du -sh *` |
+| **Defect found and fixed: every AI answer was unusable.** The local model's JSON was printed raw, and `-d` never found a command in any AI answer (local, Claude or Ollama) because execution only reads the top-level `command` field that pattern matches produce | [#780](https://github.com/cxlinux-ai/cx-core/pull/780) `3659a86`: new `ask_response.rs` parser (11 tests); `echo y \| cx ask -d 'show memory usage'` runs `free -h` |
+| Local answers made deterministic (greedy decoding) and llama.cpp teardown log removed from output | #780 `a5678ef`: 2 prompts × 2 runs → identical hashes |
+| **P7 — 30-second demo recorded from the real model**, no mocks: question → commands; `-d` → plan, `[y/N]`, run; "install nginx" → package search, nothing installed | #780: `demo/cx-30s.tape`, `demo/record-30s.sh` (refuses without a real backend), `demo/cx-30s.gif` (29 s), transcript |
+| Tests | `cargo test -p cx-terminal` 29/29 (18 + 11); fmt clean |
+
+### Findings
+- **Latency:** 45–62 s per local answer on a 2-vCPU VM, CPU-bound (`n_threads` hard-coded to 4; release build no faster). The GIF cuts the wait and keeps `time` on screen. Laptop latency not measured (N24).
+- **All four pattern targets are stubs.** `cx new`, `cx save`, `cx restore`, `cx snapshots` print "not yet implemented" and exit 0. They also exist only under `cx-terminal cli …`, so the 35 pattern templates (`cx new python {name}` etc.) fall through to the AI catch-all, and `cx new python demo` passes the name positionally where the command expects `--name`. Day 1's note "CX-native intents already resolve offline" was wrong: they resolve to stubs. Not fixed this cycle (D19, N23).
+- **#775's execution gate never sees a real AI command** — it keys on the same `command` field; its demo works only through `CX_ASK_MOCK_RESPONSE`. Added as item 5 of [REVIEW_775.md](REVIEW_775.md).
+- `cx ask` exits 0 when no AI backend is available, so scripts can't detect the failure.
+- `test_query_local_missing_model` fails on any machine that has the model downloaded (pre-existing).
+- The model's tools (`search_packages`, `kb_lookup`, …) have no runtime in the CLI; #780 maps them to read-only commands.
+
+### Not done (and why)
+- No merges (D16). #780 and cx-web #62 await review.
+- Stub commands not implemented: product scope (N23).
+
+### Next
+- Day 4: re-rank the plan around #780 (real AI path) and #775 rebase; P9 brand sweep prep.

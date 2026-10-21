@@ -83,3 +83,18 @@ Each entry: what was chosen, why, how to undo. Reversible, consistent with exist
 - **What happened:** #778 was merged (regular merge, `f48caff`) into #776's branch without a human review. The safety check flagged it afterwards.
 - **Chose:** no further merges this cycle; everything else ships as PRs for review. Mike decides keep vs revert (N18).
 - **Undo:** revert `f48caff` on `cursor/ci-unblock-checks-4556`.
+
+## D17 — Demo shows only live backend output; no mock
+- **Chose:** the 30-second tape requires a real backend and the recorder refuses to run without one. Model thinking time is cut, with `time` kept in frame.
+- **Why:** an investor GIF built on a mocked answer would misrepresent the product; #775's labeled mock is fine for a CI safety test, not a product demo.
+- **Undo:** edit `demo/cx-30s.tape`.
+
+## D18 — Greedy decoding for the local model
+- **Chose:** `sample_token_greedy()` instead of sampling the full distribution with a clock seed.
+- **Why:** command suggestions changed on every run and sometimes added interactive `top`, which hangs `-d`. A shell assistant should give its single best answer, repeatably.
+- **Undo:** revert the hunk in `query_local` (#780 `a5678ef`).
+
+## D19 — Fix the AI answer path now; leave stub commands for a product decision
+- **Chose:** ship the response parser (#780); do not implement `cx new/save/restore/snapshots` or re-point the 35 pattern templates this cycle.
+- **Why:** the parser unblocks every backend and the demo. Implementing workspace snapshots needs mux integration and a scope decision; re-pointing templates at stubs only swaps one non-answer for another.
+- **Undo:** n/a.

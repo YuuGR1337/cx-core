@@ -40,3 +40,6 @@ Commands run via `sh -c`, so `cx snapshots -l; <anything>` would be classed read
 
 ## 4. CI on #775
 All three failures (CLA for `cursoragent`, `debian11`, `build-docs`) are fixed by #776 with #778 merged into it. The `build-docs` failure was a broken relative link in `docs/autonomy/claude/` introduced by this track when its docs moved folders.
+
+## 5. Blocking (found Day 3 with the real local model) — the gate never sees AI commands
+`maybe_execute_from_response` reads only the top-level `command` field. Real backends put their answer in `response`: the CX model as JSON `{"summary", "commands": [{"command_template"}]}`, Claude/Ollama as Markdown. So with a real backend nothing is previewed, gated or audited; `demo/safety-demo.sh` passes only because `CX_ASK_MOCK_RESPONSE` supplies a top-level `command`. #780 adds `ask_response::commands_from_envelope`; after rebase, use it for AI answers in `maybe_execute_from_response`.

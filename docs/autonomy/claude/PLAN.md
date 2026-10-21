@@ -51,3 +51,7 @@ Ranked by impact × dependency. Each item names its proof of done.
 
 ### P8 status (2026-10-20)
 Covered by the parallel run's [#775](https://github.com/cxlinux-ai/cx-core/pull/775). Reviewed from the diff with sandbox tests: gate logic correct; sandbox blocks `sudo`/apt and bubblewrap discards writes. See [REVIEW_775.md](REVIEW_775.md). Not duplicated (D12).
+
+### P6/P7 status (2026-10-21)
+- P6 done: install.sh verified in Ubuntu 24.04/22.04 and Debian 12 containers; fixes in cx-web #62.
+- P7 done: real-model 30-second demo in cx-core #780 (`demo/`). Recording also exposed and fixed the unusable AI answer path.
