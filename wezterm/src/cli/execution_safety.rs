@@ -11,11 +11,21 @@ use std::io::{self, Write};
 /// Does not apply to arbitrary AI-suggested shell text.
 pub fn is_read_only_cx_cli(command: &str) -> bool {
     let cmd = command.trim();
-    cmd.starts_with("cx snapshots -l")
-        || cmd.starts_with("cx snapshots --list")
-        || cmd == "cx new --list"
-        || cmd.starts_with("cx daemon status")
-        || cmd.starts_with("cx daemon health")
+
+    // Reject shell metacharacters to prevent command injection
+    if cmd.contains(&[';', '&', '|', '$', '`', '>', '<', '\n'][..]) {
+        return false;
+    }
+
+    // Exact match only to prevent injection via suffix
+    matches!(
+        cmd,
+        "cx snapshots -l"
+            | "cx snapshots --list"
+            | "cx new --list"
+            | "cx daemon status"
+            | "cx daemon health"
+    )
 }
 
 /// Whether stdin is an interactive terminal (required for confirmation prompts).
@@ -123,6 +133,23 @@ mod tests {
         assert!(is_read_only_cx_cli("cx new --list"));
         assert!(!is_read_only_cx_cli("cx save my-work"));
         assert!(!is_read_only_cx_cli("cx daemon alerts --acknowledge-all"));
+    }
+
+    #[test]
+    fn read_only_rejects_command_injection() {
+        // Command injection via semicolon
+        assert!(!is_read_only_cx_cli("cx snapshots -l; touch /tmp/x"));
+        assert!(!is_read_only_cx_cli("cx snapshots -l && rm -rf /"));
+
+        // Command injection via pipe
+        assert!(!is_read_only_cx_cli("cx snapshots -l | sh"));
+
+        // Command injection via command substitution
+        assert!(!is_read_only_cx_cli("cx snapshots -l $(malicious)"));
+        assert!(!is_read_only_cx_cli("cx snapshots -l `malicious`"));
+
+        // Additional arguments that don't match the exact pattern
+        assert!(!is_read_only_cx_cli("cx snapshots -l --extra"));
     }
 
     #[test]
