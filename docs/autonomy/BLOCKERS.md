@@ -10,3 +10,8 @@
 
 - 2026-10-19 09:07 MT | B-DEB: Debian 12 public apt fails (glibc). PARTIAL 09:37: minimal CLI deb builds+runs on Bookworm; full GUI deb build flakes (freetype/zlib). Needs fix + a Bookworm package published (Michael-only release).
 - 2026-10-19 09:07 MT | B-ACT: license activation broken on published deb until #774 lands + new APT publish (Michael-only: merge + release).
+- 2026-10-20 09:15 MT | B-ACT update: #771/#772 merged; #774 now conflicts with main (rebase agent bc-f3dbaed4 running). Still needs merge + APT publish (Michael-only).
+- 2026-10-20 09:15 MT | B-CI: cx-core main `build` fails (debian11 apt 404) and CLA bot rejects cursoragent; fix is draft #776, needs Michael's merge.
+- 2026-10-20 09:15 MT | Note: box gh CLI token invalid (401); built-in GitHub tools work, so not blocking.
+- 2026-10-21 9:15 MT | B-SANDBOX: #775 sandbox breaks `sudo apt install` (firejail/bwrap) and bwrap discards writes (per REVIEW_775.md on #779; being reproduced + fixed by cloud agent bc-7d5d09f5). Blocks the "sandboxed" marketing claim and #775 merge, not first $.
+- 2026-10-21 9:15 MT | B-CI update: #776 now 20/20 green (incl. CodeQL) after #778; main `build` still red (debian11) until #776 merges (Michael-only).

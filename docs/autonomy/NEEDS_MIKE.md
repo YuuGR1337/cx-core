@@ -2,7 +2,7 @@
 
 ## M1 — First paying user ($20 Pro) — **DO THIS FIRST**
 - **What:** Complete checkout at https://cxlinux.com/pricing → **Start with Pro** → fill name/email → **Subscribe Now** → pay $20 on Stripe (AIVH LLC, live; product shows as **CX Core+**).
-- **Why:** E2E already reached `checkout.stripe.com` `cs_live_…` without card entry. This is the remaining gate to “first paying user.”
+- **Why:** E2E already reached `checkout.stripe.com` `cs_live_…` without card entry. This is the remaining gate to "first paying user."
 - **Done:** Forward receipt + license key (or success-page screenshot) to Linus via Dez notes / this folder.
 - **Undo:** Stripe cancel/refund within 7-day money-back copy on page.
 
@@ -17,8 +17,8 @@
 - **Why:** Need apt smoke on Ubuntu/Debian + PR triage capacity.
 
 ## M4 — Stripe catalog hygiene (optional same week)
-- **What:** In Stripe (acct connected as AIVH LLC): leave working **CX Core+ $20** path; archive/reactivate old **Cortex*** products (`active:false` today) so dashboard isn’t confusing.
-- **Why:** Search found Cortex Pro/Enterprise/Managed inactive; live checkout still sold “CX Core+”.
+- **What:** In Stripe (acct connected as AIVH LLC): leave working **CX Core+ $20** path; archive/reactivate old **Cortex*** products (`active:false` today) so dashboard isn't confusing.
+- **Why:** Search found Cortex Pro/Enterprise/Managed inactive; live checkout still sold "CX Core+".
 - **No Linus writes** — Mike only.
 
 ## M5 — Merge authority for week (optional)
@@ -54,3 +54,14 @@
 2. **M-PR775:** merge https://github.com/cxlinux-ai/cx-core/pull/775 after its CI re-runs on top of #776.
 3. **M-CORE:** merge #774 once the rebase lands, then approve the APT release.
 4. **M1:** the $20 test buy, best done after step 3 so activation works.
+- M-PR60: cx-web #60 install/activation copy consistency. All checks pass. Recommendation: merge (preview https://74e483d8.cx-web.pages.dev).
+- M-PR777: cx-core #777 syncs docs/autonomy/* only. Recommendation: merge any time; very low risk.
+
+## Order of taps (UPDATED Wed Oct 21 9:15am MT, supersedes the Oct 20 order)
+Verified via GitHub API 9:05am MT. None of the cx-core PRs below has conflicts; they wait only on your review/merge.
+1. **M-PR776:** merge https://github.com/cxlinux-ai/cx-core/pull/776. All 20 checks green now, CodeQL included, because #778 (your Claude track) merged a security fix into its branch. Same ask as Claude track N16/N18. Fixes main's red `build` too. Recommendation: Approve, squash and merge.
+2. **M-CORE:** merge https://github.com/cxlinux-ai/cx-core/pull/774 next (it no longer needs to wait for #775), then approve the new APT release. This is what lets a $20 buyer run `cx activate <key>`.
+3. **M-PR60:** merge https://github.com/cxlinux-ai/cx-web/pull/60 (clean after #61; copy only). Any time.
+4. **M-PR777:** merge https://github.com/cxlinux-ai/cx-core/pull/777 (docs only). Any time.
+5. **M1:** the $20 test buy at https://cxlinux.com/pricing, after step 2.
+6. **M-PR775 (HOLD):** don't merge #775 yet. An independent review (Claude track REVIEW_775.md, N17) found the sandbox blocks `sudo apt install` and bubblewrap throws away file writes. A cloud agent is fixing it on the #775 branch now; next cycle verifies. Claude track N17 (post that review publicly) becomes optional once the fix lands.

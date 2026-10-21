@@ -12,8 +12,8 @@ Owners: **cloud** = cloud coding agent · **linus** = this bot · **mike** = Mic
 | T01 | D0–D1 (Oct 19–20) | **mike** | — | Complete or designate one **$20 Pro** live purchase; save receipt + license key | Stripe dashboard shows paid sub; license email or success page shows key; optional `cx license activate <key>` OK |
 | T02 | D0 (Oct 19) | **linus** | — | File e2e + this plan; queue NEEDS_MIKE | Files exist under `org/vision/linus/` + `autonomy/` |
 | T03 | D1 (Oct 20) | **cloud** | `cx-web` | SPA host rewrite: all app routes return **HTTP 200** with index.html (fix soft-404) | `curl -s -o /dev/null -w '%{http_code}' https://cxlinux.com/pricing` → **200** (after Mike deploys) |
-| T04 | D1 (Oct 20) | **cloud** | `cx-web` | Align naming: site “Pro” ↔ Stripe “CX Core+” (copy + success page); document price IDs | PR: UI says one canonical name; checklist of `price_1SqYQj…` IDs in PR body |
-| T05 | D1 (Oct 20) | **cloud** | `cx-web` | “Install in 60 seconds” CTA → `/getting-started` (not checkout?plan=core) | Playwright/click: button lands on getting-started; Core free path still clear |
+| T04 | D1 (Oct 20) | **cloud** | `cx-web` | Align naming: site "Pro" ↔ Stripe "CX Core+" (copy + success page); document price IDs | PR: UI says one canonical name; checklist of `price_1SqYQj…` IDs in PR body |
+| T05 | D1 (Oct 20) | **cloud** | `cx-web` | "Install in 60 seconds" CTA → `/getting-started` (not checkout?plan=core) | Playwright/click: button lands on getting-started; Core free path still clear |
 | T06 | D2 (Oct 21) | **cloud** | `cx-web` / license worker | Harden checkout error UX when session create fails; add visible error toast | Force bad price id in staging **or** unit test; user sees message (no silent stay) |
 | T07 | D2 (Oct 21) | **linus**+**mike** | — | Approve + send Suyash/Dhruv re-engage draft | Draft in `../drafts/`; Mike/Rally sends; reply logged in LOG |
 | T08 | D2–D3 (Oct 21–22) | **cloud**/devs | — | Disposable Ubuntu 24.04 apt install from `repo.cxlinux.com` | Script/log: key install, apt update, `apt-get install -y cx-terminal`, `cx-terminal --version` |
@@ -47,3 +47,9 @@ T11–T12 rebuild trust post-revenue.
 
 ## Out of scope this week
 New core features, llama.cpp rewrite, Ed Honour outreach (contact unconfirmed), promising pay/equity to devs, bot-to-bot polling.
+
+## Progress (updated 2026-10-21 09:15 MT)
+- Live site healthy; cx-web #61 (homepage SEO/HSTS) merged overnight by Michael's account. #60 clean and ready.
+- cx-core #776 now fully green (incl. CodeQL via #778). Critical path re-ordered: #776 → #774 → APT release → M1 (T01) → T10.
+- #775 on hold: sandbox fixes in progress (cloud agent bc-7d5d09f5). Marketing "sandboxed" claim downgraded until verified.
+- T07 (dev re-engage send) still waiting on Michael. T11 done earlier; T12 README line after #774. T13 drafted. T15 scorecard due Oct 25.

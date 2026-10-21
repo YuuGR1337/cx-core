@@ -39,3 +39,26 @@
 - 08:32 MT: #775 fixed all 8 review comments (2 threads resolved, 6 pending). Cargo, Clippy, fmt, tests, CodeQL and Sonar are green. Remaining failures predate this PR: CLA (cursoragent not allowlisted), debian11 apt 404 (fails on every PR), build-docs broken link. Asked for a separate CI-unblock draft PR.
 - 09:04 MT: Draft cx-core #776 (CI unblock: CLA allows cursoragent only with a signed co-author, debian11 apt via archive.debian.org, docs links). Its checks pass except CodeQL (3s quirk). Commits authored as Mike to pass the old CLA check; flagged to Michael. All 8 #775 threads resolved. Plan: merge #776, update the #775 branch, re-run CI, merge #775.
 - M-PR776: merge #776 first (Michael tap).
+
+### Daily cycle run 09:12 MT (routine, Oct 20)
+- Verified (GitHub API + curl, 9:13–9:15 MT): cx-web #57, #58, #59 MERGED (~8:52–8:53am MT, 14:52–14:53Z); cx-web main CI green (head 2497fe96). Live: https://cxlinux.com/pricing 200, /getting-started 200, /blog 200, /sitemap.xml 200, junk path 404, license.cxlinux.com/health 200, repo.cxlinux.com Release 200. (/rss.xml 404 but the feed lives at /blog/rss.xml 200.)
+- cx-core: #771 + #772 merged Oct 19 ~12:50pm MT; #773 docs mirror merged ~4:09pm MT. #774 is draft + dirty (conflicts). #775 open: 28 checks pass, 3 fail (build/debian11, build-docs, cla-check, all pre-existing). #776 draft: 19 pass, CodeQL fail. cx-core main 7b88a923: only `build` fails (debian11 apt 404, fixed by #776).
+- Live bundle scan: activation copy mixes `cx activate` and `cx license activate`; two GPG key URLs (key.gpg / pub.gpg, same file); install.sh claims Debian 11+ though Debian 12 fails. Published package still lacks `activate` (per #774), so live copy tells buyers a command that won't work yet. Not an emergency: 0 known paying users.
+- Couldn't reply to earlier agents from this run (tool limit), so launched fresh Composer 2.5 agents: bc-f3dbaed4 (cx-core: rebase + slim #774 on its branch, fix Bookworm GUI flake if cheap, plus a docs-only draft PR syncing these 5 files) and bc-293c0687 (cx-web: one activation command, one apt snippet, verified-OS-only claims; draft PR).
+- NEEDS_MIKE: marked M2/M-PR57/M-PR58 done; added tap order #776 → #775 → #774 → APT release → M1.
+- gh CLI token on the box is invalid (401); used the built-in GitHub tools instead. Not a blocker.
+- Next cycle: verify both new PRs (CI, diff, preview); recheck #775/#776; rerun T08/T09 after #774 rebase.
+- No external sends, merges, deploys or Stripe writes.
+- 09:19 MT: Draft cx-web #60 (https://github.com/cxlinux-ai/cx-web/pull/60) makes every page use `cx activate <key>` and one install snippet, and lists Ubuntu 24.04 as the only verified system. tsc, 10/10 tests, build and Pages preview all pass. Follow-ups: the docs/ Docusaurus install page still uses key.gpg, and blog excerpts still say "Debian/Ubuntu".
+- M-PR60: merge cx-web #60 after #776/#775 (low risk, preview https://74e483d8.cx-web.pages.dev).
+- 10:06 MT: #774 has no conflicts and is down to +802/-59 (logs moved to CI artifacts). Debian 12 minimal .deb build and install smoke are green, and so is the Ubuntu 24.04 APT smoke. The optional full GUI .deb still fails (follow-up; artifact on run 39448560683). Draft docs-sync PR #777 touches only docs/autonomy/*. Merge order: #776, #775, #774, #777, cx-web #60, then a new APT release and the $20 test purchase.
+
+### Daily cycle run 09:02 MT (routine, Wed Oct 21)
+- Verified live (curl 9:02 MT): https://cxlinux.com/ 200 (now sends HSTS), /pricing 200, /getting-started 200, license.cxlinux.com/health 200, repo.cxlinux.com/apt/dists/stable/Release 200. No production harm found.
+- Verified GitHub (API 9:05 MT): cx-web #61 (homepage server-render + HSTS, by Michael's account) merged Oct 21 ~1:09am MT. cx-core #778 (CLA security fix + Debian 11 archive on all 3 workflows) merged into #776's branch Oct 20 ~11:38am MT; #776 head f48caff3 now 20/20 checks success. #774 (5fbee3cd), #775 (36ef88e2), #776 all mergeable=true, state "blocked" (needs review only). cx-web #60 mergeable_state clean. cx-core main 7b88a923: 28 pass, 1 fail (`build`, debian11), fixed by #776.
+- Found: Michael's Claude track opened #779 (docs) with REVIEW_775.md: #775's sandbox blocks `sudo apt install` and bwrap discards writes. Not yet independently reproduced.
+- Launched cloud agent bc-7d5d09f5 (default model) on #775's branch: reproduce the 3 review findings, fix on-branch, tests, update CLAIMS_VERIFICATION.md. No new PR, no merge.
+- Updated FACTS.md + positioning one-pager: sandbox FAIL for installs, no AppArmor claim.
+- NEEDS_MIKE: new tap order #776 → #774 → APT release → M1; #60, #777 any time; #775 on hold.
+- Next cycle: verify bc-7d5d09f5 commits (reproduction logs, tests, CI); if green, move M-PR775 back to ready.
+- No external sends, merges, deploys or Stripe writes.
