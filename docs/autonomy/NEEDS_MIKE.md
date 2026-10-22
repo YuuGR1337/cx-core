@@ -2,7 +2,7 @@
 
 ## M1 — First paying user ($20 Pro) — **DO THIS FIRST**
 - **What:** Complete checkout at https://cxlinux.com/pricing → **Start with Pro** → fill name/email → **Subscribe Now** → pay $20 on Stripe (AIVH LLC, live; product shows as **CX Core+**).
-- **Why:** E2E already reached `checkout.stripe.com` `cs_live_…` without card entry. This is the remaining gate to "first paying user."
+- **Why:** E2E already reached `checkout.stripe.com` `cs_live_…` without card entry. This is the remaining gate to “first paying user.”
 - **Done:** Forward receipt + license key (or success-page screenshot) to Linus via Dez notes / this folder.
 - **Undo:** Stripe cancel/refund within 7-day money-back copy on page.
 
@@ -17,8 +17,8 @@
 - **Why:** Need apt smoke on Ubuntu/Debian + PR triage capacity.
 
 ## M4 — Stripe catalog hygiene (optional same week)
-- **What:** In Stripe (acct connected as AIVH LLC): leave working **CX Core+ $20** path; archive/reactivate old **Cortex*** products (`active:false` today) so dashboard isn't confusing.
-- **Why:** Search found Cortex Pro/Enterprise/Managed inactive; live checkout still sold "CX Core+".
+- **What:** In Stripe (acct connected as AIVH LLC): leave working **CX Core+ $20** path; archive/reactivate old **Cortex*** products (`active:false` today) so dashboard isn’t confusing.
+- **Why:** Search found Cortex Pro/Enterprise/Managed inactive; live checkout still sold “CX Core+”.
 - **No Linus writes** — Mike only.
 
 ## M5 — Merge authority for week (optional)
@@ -65,3 +65,13 @@ Verified via GitHub API 9:05am MT. None of the cx-core PRs below has conflicts; 
 4. **M-PR777:** merge https://github.com/cxlinux-ai/cx-core/pull/777 (docs only). Any time.
 5. **M1:** the $20 test buy at https://cxlinux.com/pricing, after step 2.
 6. **M-PR775 (HOLD):** don't merge #775 yet. An independent review (Claude track REVIEW_775.md, N17) found the sandbox blocks `sudo apt install` and bubblewrap throws away file writes. A cloud agent is fixing it on the #775 branch now; next cycle verifies. Claude track N17 (post that review publicly) becomes optional once the fix lands.
+
+## Order of taps (UPDATED Thu Oct 22 9:15am MT, supersedes Oct 21)
+Verified via GitHub API ~9:05am MT: nothing merged since yesterday.
+1. **M-PR776:** merge https://github.com/cxlinux-ai/cx-core/pull/776 (20/20 green; mark ready, then squash and merge). Fixes main's red build.
+2. **M-PR62 (new, live issue):** merge https://github.com/cxlinux-ai/cx-web/pull/62 into #60, then merge https://github.com/cxlinux-ai/cx-web/pull/60. Today the live installer puts an unrelated npm package (`cx-cli`, a CxJS tool) on Macs and non-Debian Linux, and says "installed" on Debian 12 when nothing was. Merging likely deploys cxlinux.com; undo = revert.
+3. **M-CORE:** merge https://github.com/cxlinux-ai/cx-core/pull/774, then approve the new APT release (lets a $20 buyer run `cx activate <key>`).
+4. **M-PR780:** merge https://github.com/cxlinux-ai/cx-core/pull/780 (real AI answers render and run; CI green except the old debian11 `build`). Before #775.
+5. **M-PR777:** docs only, any time: https://github.com/cxlinux-ai/cx-core/pull/777
+6. **M1:** the $20 test buy at https://cxlinux.com/pricing, after step 3.
+7. **M-PR775 (HOLD):** CI now green on the fix commit, but it needs an independent review of running `sudo apt/dpkg/snap` on the host, and a rebase onto #780. Linus will do the rebase after #780 merges.

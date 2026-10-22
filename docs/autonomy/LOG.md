@@ -62,3 +62,34 @@
 - NEEDS_MIKE: new tap order #776 → #774 → APT release → M1; #60, #777 any time; #775 on hold.
 - Next cycle: verify bc-7d5d09f5 commits (reproduction logs, tests, CI); if green, move M-PR775 back to ready.
 - No external sends, merges, deploys or Stripe writes.
+- 09:20 MT: launched docs-sync agent bc-7b754cdd on #777's branch (overwrite our 5 docs/autonomy files only, never docs/autonomy/claude/). Next cycle verifies the diff.
+
+## 2026-10-21 ~9:15 MT — #775 sandbox-fix agent (bc-7d5d09f5) finished
+- Pushed commit 6ee3fef40 to the #775 branch (cursor/safety-dry-run-demo-4556). It touches 3 files, +153/-12.
+- **Claims (UNVERIFIED by me):**
+  - It reproduced and fixed the bwrap cwd write-loss bug: cwd is now bound read-write with --chdir, and it fails closed if cwd is missing.
+  - It hardened the read-only allowlist against command injection: it rejects shell metacharacters and only accepts exact matches.
+  - It added 4 unit tests.
+- **Design change to review:** `sudo apt/apt-get/dpkg/snap` now bypass the sandbox and run on the host after --execute plus the [y/N] prompt. So package installs are NOT sandboxed. Marketing must keep saying "previewed, confirmed, audited, undoable", not "sandboxed installs".
+- **Caveat:** the agent could NOT run a full cargo build (the getrandom/edition2024 issue that #776 fixes), so the tests have not run in CI yet.
+- **Next cycle:**
+  - Check #775 CI on 6ee3fef40.
+  - Keep #775 on HOLD until cargo build and tests pass and someone independent, ideally Gatekeeper, reviews the privileged-bypass design.
+- No external sends, merges or deploys.
+
+## 2026-10-21 ~9:23 MT — docs-sync agent (bc-7b754cdd) finished
+- It pushed f3dc38d6d to docs/autonomy-sync-2026-10-20 ([cx-core #777](https://github.com/cxlinux-ai/cx-core/pull/777)). Only the 5 autonomy docs changed (+54/-5), and docs/autonomy/claude/ was left untouched.
+- **Checks:** 9 of 12 passed. Test Suite was still running. cla-check and build-docs fail, but those failures were already there and #776 fixes them.
+- #777 stays a docs-only draft, and merging it is low priority. No sends, merges or deploys.
+
+### Daily cycle run 09:01 MT (routine, Thu Oct 22)
+- Verified live (curl 9:01 MT): https://cxlinux.com/ 200, /pricing 200, /getting-started 200, junk path 404, license.cxlinux.com/health 200, repo.cxlinux.com/apt/dists/stable/Release 200.
+- Verified GitHub (built-in GitHub tools, ~9:05 MT): no merges since yesterday. cx-core #776 (f48caff3, draft), #774 (5fbee3cd, draft), #777 (f3dc38d6, draft), #775 (6ee3fef4) all still open. cx-web #60 (draft) open.
+- #775 CI on 6ee3fef4: 28 pass incl. Test Suite, Cargo Check, Clippy; 3 fail (build/debian11, build-docs, cla-check), all pre-existing and fixed by #776. So yesterday's "tests never ran" caveat is cleared. #775 stays HOLD for (a) an independent review of the host-bypass for `sudo apt/dpkg/snap` and (b) the #780 overlap below.
+- New from Michael's Claude track (read as evidence, not duplicated):
+  - cx-core #780 https://github.com/cxlinux-ai/cx-core/pull/780 (6608052a): real AI answers rendered as raw JSON and `-d` never executed them; adds a parser + 11 tests + real-model 30 s demo. CI 30 pass, 1 fail (`build`, the old debian11 one). It says #775's gate keys on a field real backends don't send, so whichever merges second needs a small rebase.
+  - cx-web #62 https://github.com/cxlinux-ai/cx-web/pull/62 (38ca57f9, stacked on #60): install.sh fail-safe. I verified the core claim myself: the live https://cxlinux.com/install.sh (260 lines) runs `npm install -g cx-cli` on macOS/non-Debian, and `npm view cx-cli` says "Modern CLI for scaffolding CxJS applications" (codaxy/cxjs), unrelated to CX. CI 1/1 pass.
+- Production check: the install.sh issue is live and wrong, but not new, there are 0 known paying users, and Michael's own track already has the fix PR, so I did not interrupt him. Queued as tap #2 (M-PR62) in NEEDS_MIKE.
+- Repo work this cycle: launched one docs-sync cloud agent on #777's branch (5 autonomy files only). No other new agents: everything else on the critical path waits on merges (#776, #774) or on #780 landing first.
+- Next cycle (Fri): verify the docs sync; if #780 merges, launch an agent to rebase #775 onto its parser; file the weekly scorecard Friday (T15's Oct 25 is a Sunday, and this routine runs weekdays).
+- No external sends, merges, deploys or Stripe writes.

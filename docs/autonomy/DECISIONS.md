@@ -19,3 +19,6 @@ Format: date MT | decision | why | how to undo
 - 2026-10-21 | New critical path: #776 → #774 → APT release → M1; #775 no longer gates #774 | both are conflict-free against main; #775 isn't needed for license activation | restore the Oct 20 order in NEEDS_MIKE
 - 2026-10-21 | Marketing drafts and FACTS.md treat Sandbox as FAIL for installs and never mention AppArmor | claims must match proof | update FACTS.md when the fix is verified
 - 2026-10-21 | Michael's Claude track (docs/autonomy/claude/, #778/#779) is a parallel workstream: read its PRs as evidence, don't duplicate its work, don't edit its files | avoids conflicting edits | n/a
+- 2026-10-22 | install.sh npm issue handled as a top NEEDS_MIKE tap, not an interrupt | live but old, 0 known paying users, Michael's own Claude track already opened the fix (#62) | wake Michael if a real user reports it
+- 2026-10-22 | Suggest #780 merges before #775, then a Linus agent rebases #775 onto #780's parser | #780 proves execution with a real model; #775's gate only works with a mock | swap the order in NEEDS_MIKE
+- 2026-10-22 | Weekly scorecard filed Fri Oct 23 instead of Sun Oct 25 | routine is weekday-only | file a Monday addendum

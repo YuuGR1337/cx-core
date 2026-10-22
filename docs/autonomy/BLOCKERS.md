@@ -15,3 +15,5 @@
 - 2026-10-20 09:15 MT | Note: box gh CLI token invalid (401); built-in GitHub tools work, so not blocking.
 - 2026-10-21 9:15 MT | B-SANDBOX: #775 sandbox breaks `sudo apt install` (firejail/bwrap) and bwrap discards writes (per REVIEW_775.md on #779; being reproduced + fixed by cloud agent bc-7d5d09f5). Blocks the "sandboxed" marketing claim and #775 merge, not first $.
 - 2026-10-21 9:15 MT | B-CI update: #776 now 20/20 green (incl. CodeQL) after #778; main `build` still red (debian11) until #776 merges (Michael-only).
+- 2026-10-22 9:15 MT | B-INSTALL: live install.sh installs unrelated npm `cx-cli` (macOS/non-Debian) and fakes success on Debian 12. Fix = cx-web #62 into #60, then merge #60 (Michael-only; merge deploys the site).
+- 2026-10-22 9:15 MT | B-AIEXEC: per #780, real AI answers weren't executed/rendered; #775's gate needs #780's parser. Blocks the "dry-run gate works with real AI" claim, not first $.
