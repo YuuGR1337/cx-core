@@ -126,3 +126,29 @@
 
 ### Next
 - Day 4: re-rank the plan around #780 (real AI path) and #775 rebase; P9 brand sweep prep.
+
+## Day 4 — Thu 2026-10-22 (11:25 MT)
+
+### Health check (verified against GitHub)
+- No merges since Day 3. Open and waiting: cx-core #776, #779, #780; cx-web #60, #62. The parallel run updated #777 (docs) today.
+- [#780](https://github.com/cxlinux-ai/cx-core/pull/780): every check green except `debian11` (fixed by #776). Required checks (Cargo Check, Rustfmt, Test Suite, Documentation Tests) pass; CodeRabbit, SonarCloud, CodeQL pass.
+- `main` scheduled workflows green.
+
+### Shipped / verified
+| What | Proof |
+|---|---|
+| **P8 — dry-run-by-default package guard** (`package_guard.rs`): classify → `apt-get -s` preview → `[y/N]` (EOF = No) → exact argv, no shell → audit + transaction with undo. Wired into `cx ask -d` and `cx install` | [#781](https://github.com/cxlinux-ai/cx-core/pull/781) `848f401` |
+| Tests prove nothing executes without consent: EOF; any reply but yes; failed preview even with `-y`; empty plan; dpkg/snap without consent. Hidden package changes refused (pipe, `;`, `$( )`, redirect, env prefix, `sudo -E`, apt `-o`, aptitude) | `cargo test -p cx-terminal` 44/44 (15 new) |
+| **Real apt E2E in a clean Ubuntu 24.04 container**: preview `Install (1): hello` → EOF declined → consent installed `hello` → recorded undo `apt-get remove hello` → undo removed it | ignored test `real_apt_preview_execute_and_undo` with `CX_GUARD_E2E=1`, output in #781 |
+| Plan re-ranked from evidence | PLAN.md "Re-rank (Day 4)" |
+
+### Findings
+- The local model answers install requests with a package *search*, not an install command, so with the local model the guard is reached only via Claude/Ollama answers or future offline intents (#763).
+- Contributor PR #765 already implements `cx new` templates (opened in May, unreviewed). It is relevant to the stub-command finding (N23).
+- #763/#764/#765 have no merge base with current `main` (branched before #771); they need rebases regardless.
+
+### Not done (and why)
+- No merge of #781 (D21). It is stacked on #780, so the merge order is #780 → #781.
+
+### Next
+- Day 5: P9 brand sweep; real-diff review of #765 against N23.

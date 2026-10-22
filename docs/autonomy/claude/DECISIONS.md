@@ -98,3 +98,13 @@ Each entry: what was chosen, why, how to undo. Reversible, consistent with exist
 - **Chose:** ship the response parser (#780); do not implement `cx new/save/restore/snapshots` or re-point the 35 pattern templates this cycle.
 - **Why:** the parser unblocks every backend and the demo. Implementing workspace snapshots needs mux integration and a scope decision; re-pointing templates at stubs only swaps one non-answer for another.
 - **Undo:** n/a.
+
+## D20 — Build the package-specific guard (P8) after all; narrows D12
+- **Chose:** implement `package_guard` ([#781](https://github.com/cxlinux-ai/cx-core/pull/781)): `apt-get -s` preview, `[y/N]` default No, exact-argv run, audit + transaction record with undo. Stacked on #780.
+- **Why:** Day 3 evidence changed the picture behind D12. #775's sandbox cannot run `sudo apt` (item 1) and its gate never sees real AI commands (item 5), so package installs have no working safe path. #781 covers only package commands and writes the same `~/.cx` files and fields #775's `cx undo`/`cx audit` read, so the two complement rather than compete. It also gives #763/#764 a concrete bar to meet.
+- **Undo:** close #781; nothing else depends on it.
+
+## D21 — Day 4 trigger said "merge per D6"; not merged
+- **Chose:** open #781 for review; no merge.
+- **Why:** D16 — merging without a human review is denied by the session's permission guard and the `main` ruleset requires an approving review.
+- **Undo:** n/a.

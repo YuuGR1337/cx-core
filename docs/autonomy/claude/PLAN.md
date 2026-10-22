@@ -51,7 +51,20 @@ Ranked by impact × dependency. Each item names its proof of done.
 
 ### P8 status (2026-10-20)
 Covered by the parallel run's [#775](https://github.com/cxlinux-ai/cx-core/pull/775). Reviewed from the diff with sandbox tests: gate logic correct; sandbox blocks `sudo`/apt and bubblewrap discards writes. See [REVIEW_775.md](REVIEW_775.md). Not duplicated (D12).
+*Update 2026-10-22:* the package-specific part is now built in [#781](https://github.com/cxlinux-ai/cx-core/pull/781) (D20); #775 keeps the general gate, sandbox and audit/undo.
 
 ### P6/P7 status (2026-10-21)
 - P6 done: install.sh verified in Ubuntu 24.04/22.04 and Debian 12 containers; fixes in cx-web #62.
 - P7 done: real-model 30-second demo in cx-core #780 (`demo/`). Recording also exposed and fixed the unusable AI answer path.
+
+### Re-rank (Day 4, 2026-10-22) — from evidence
+| Rank | Item | Status / evidence | Owner |
+|---|---|---|---|
+| 1 | Merge order to make the demo path real on main: #776 (CI) → #780 (AI answers + demo) → #781 (P8 guard) → #775 rebased (sandbox/audit, items 1, 2, 5) | #780 green except `debian11`, which #776 fixes | Mike (N16, N22, N27) |
+| 2 | **P8** shared package guard | Built: [#781](https://github.com/cxlinux-ai/cx-core/pull/781) — `apt-get -s` preview, `[y/N]`, record + undo; real install/undo verified in Ubuntu 24.04 (D20) | done, review |
+| 3 | Contributor bar: #763 (offline install intents) and #764 (package parsing) route through `package_guard::guard` | Both build `sudo apt install …` text; no merge base with current main (branched before #771) | contributors, after #781 |
+| 4 | New APT release from main | Published 0.3.2 lacks `cx`, #772, #780, #781 | Mike (N26) |
+| 5 | Stub commands (`cx new/save/restore/snapshots`) | Contributor PR #765 implements `cx new` templates (May, unreviewed) — review it before writing a bounty issue (N23 updated) | Day 5 review |
+| 6 | P9 brand sweep | Day 5 | this track |
+| 7 | P10 evidence pack | Day 6 | this track |
+| — | P5 GUI Tab moment | Not wired in product (Day 2). Not a week-scale fix; recorded for the roadmap | — |
