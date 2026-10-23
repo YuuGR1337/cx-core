@@ -152,3 +152,31 @@
 
 ### Next
 - Day 5: P9 brand sweep; real-diff review of #765 against N23.
+
+## Day 5 — Fri 2026-10-23 (11:25 MT)
+
+### Health check
+- No merges since Day 3 in any repo. Open from this track: cx-core #779, #780, #781 (+ new #782); cx-web #62 (+ new #63); cx-distro new #84. Parallel run updated #777 today.
+
+### P9 brand sweep — `git grep -i cortex` on default branches, vendored code excluded
+| Repo | Hits before | What they are | Action |
+|---|---|---|---|
+| cx-distro | 20 in 20 files | 19 installer slides linking the dead legacy org (`github.com/cortexlinux/cx-distro` → error; `cxlinux-ai/cx-distro` → 200) + a stale `.gitignore` path | **Fixed:** [cx-distro #84](https://github.com/cxlinux-ai/cx-distro/pull/84) → 0 hits |
+| cx-core | 11 in 7 files | `sonar-project.properties` key/org = the live SonarCloud project (`cortexlinux_cortex`, analysed 2026-10-19); copilot-agent blocklists that *forbid* the legacy name; factual notes (Stripe product names, redirects) | Sonar needs a SonarCloud-side rename first (N31, D22); blocklists and factual notes kept (D22) |
+| cx-web | 526 in 11 files | all in `docs/` — a Docusaurus site documenting the **retired Python CLI** (`cortex install`, `CORTEX_*` env vars, `~/.cortex/`). The live site (`client/`) has 0 hits | Not find-and-replaced: it would invent `CX_*` variables and paths that don't exist (D23, N32) |
+| cx-docs (private) | 242 in 15 files | MkDocs architecture/runbooks for the same retired stack (`/etc/cortex`, `cortex_db`) | Same as cx-web docs (D23, N32) |
+| Public issue text | 34 of 40 open cx-distro issues; cx-core #424/#425/#428 | epics and bounty descriptions | Company communication → N30 |
+
+### Shipped / verified
+| What | Proof |
+|---|---|
+| cx-distro installer links repointed to the live org | [cx-distro #84](https://github.com/cxlinux-ai/cx-distro/pull/84); `git grep -i cortex` → 0; all 19 HTML files parse |
+| **README made true** — binary name, real subcommands, verified platforms only, no false sandbox/audit claims | [cx-core #782](https://github.com/cxlinux-ai/cx-core/pull/782); commands checked against `cx-terminal --help` |
+| **Found: docs.cxlinux.com is down.** DNS → `cxlinux-ai.github.io`; HTTP 404; HTTPS cert `*.github.io` (browser error). Linked from the live install.sh (fixed in cx-web #62), the account page, the font error messages in cx-core and 19 installer slides | `curl -v` 2026-10-23 |
+| Account page "Documentation" → `/getting-started` | [cx-web #63](https://github.com/cxlinux-ai/cx-web/pull/63); tsc clean, vitest 19/19 |
+| **#765 (`cx new`) reviewed empirically** — templates generate and run (rust, go, node, python with real venv); path escape and non-empty dir refused. Missing `express`/`db` templates that `cx ask` patterns use | PR_REVIEWS.md refresh |
+| **Found:** `cx-terminal cli new/save/restore/snapshots` connect to the mux server first and exit 1 without one, so they can't work on a fresh install even once implemented | run on current main |
+| BOUNTY_AUDIT.md and PR_REVIEWS.md refreshed against live GitHub — no bounty or contributor-PR change since 2026-10-19; $50 still owed; one more unanswered contributor question (cx-distro #34) | both files, "Refresh — 2026-10-23" |
+
+### Next
+- Day 6: P10 evidence pack; independent verification pass over this week's PRs.

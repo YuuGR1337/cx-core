@@ -108,3 +108,13 @@ Each entry: what was chosen, why, how to undo. Reversible, consistent with exist
 - **Chose:** open #781 for review; no merge.
 - **Why:** D16 — merging without a human review is denied by the session's permission guard and the `main` ruleset requires an approving review.
 - **Undo:** n/a.
+
+## D22 — Keep legacy-name strings that are live identifiers or explicit blocklists
+- **Chose:** leave `sonar-project.properties` unchanged until SonarCloud is renamed; keep the copilot-agent lines that list the legacy name as forbidden; keep factual notes (redirects, Stripe product names).
+- **Why:** the Sonar key/org match the live SonarCloud project (`cortexlinux_cortex`, last analysis 2026-10-19). Changing the file first breaks the SonarCloud check on every PR. The blocklists enforce AC-001.
+- **Undo:** n/a; N31 has the rename steps.
+
+## D23 — Don't find-and-replace the retired-CLI docs
+- **Chose:** no PR for cx-web `docs/` (526 hits) or cx-docs (242 hits).
+- **Why:** they document the retired Python CLI (`cortex install`, `CORTEX_*` env vars, `/etc/cortex`). Replacing the name would publish commands, variables and paths that don't exist in the Rust product, which is worse than the legacy name. Neither site is live (docs.cxlinux.com has no site behind it).
+- **Undo:** n/a; N32 has the options.
