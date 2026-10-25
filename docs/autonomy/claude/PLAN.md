@@ -68,3 +68,18 @@ Covered by the parallel run's [#775](https://github.com/cxlinux-ai/cx-core/pull/
 | 6 | P9 brand sweep | Day 5 | this track |
 | 7 | P10 evidence pack | Day 6 | this track |
 | — | P5 GUI Tab moment | Not wired in product (Day 2). Not a week-scale fix; recorded for the roadmap | — |
+
+### Status at end of week (2026-10-25)
+| Item | Status |
+|---|---|
+| P0, P1 | Merged (#772, #771) |
+| P2, P3 | Done; refreshed and independently re-verified 2026-10-25 (corrections applied) |
+| P4 | Fixed in #776 + #778; awaiting merge |
+| P5 | Finding: no Tab moment in product; P5b → contributor #763 |
+| P6 | cx-web #62 (install.sh) |
+| P7 | #780 (real-model demo) |
+| P8 | #781 (package guard) |
+| P9 | cx-distro #84, cx-core #782, cx-web #63 (merged, live); remaining items need Mike (NEEDS_MIKE 6, 8, 10) |
+| P10 | EVIDENCE.md |
+| P11 | LOG Day 7 + NEEDS_MIKE (10 rows) |
+

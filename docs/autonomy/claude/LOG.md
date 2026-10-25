@@ -180,3 +180,67 @@
 
 ### Next
 - Day 6: P10 evidence pack; independent verification pass over this week's PRs.
+
+## Day 6 — Sat 2026-10-24 (scheduled run arrived 2026-10-25; executed then)
+
+### Independent verification pass
+A separate agent with no access to this track's context re-checked the week from primary evidence: 136 checks, 99 verified, 15 false, 12 overstated/stale, 17 unverifiable. Full record: [VERIFICATION.md](VERIFICATION.md).
+
+**Fixed from its findings:**
+- README Safety section ([#782](https://github.com/cxlinux-ai/cx-core/pull/782) `7c2cc53`): built-in CX actions run after `Run this? [Y/n]` with Enter = yes, even without `-d`.
+- BOUNTY_AUDIT:
+  - #45/#50 assignment dates corrected;
+  - bonus-noted bounty total corrected to $463;
+  - the contributor count corrected;
+  - added the **missed FCFS conflict on cx-distro #25** (#763 first, #764 second);
+  - #26/#34 noted as reopened 2025-12-20.
+- PR_REVIEWS: #763/#764 do link #25; #73 already refs #35; `Cleanup artifacts` failures; merge base `bf87c78`.
+
+**Corrections to this log (claims that were wrong):**
+- Day 1 "main is green" and Day 4 "main scheduled workflows green": `debian11_continuous` failed on main every day from 10-19 to 10-25. SonarCloud failed on `b1090ad` and was cancelled on `1bf6ce0`. #776 fixes Debian 11.
+- Day 1 test count for #771: 15 on its own head, not 18. The 18 included #772's three tests.
+- Day 4 "no merge base" for #763–#765 was a shallow-clone artifact.
+- Day 3 "35 pattern templates" is 37.
+
+**Held up:**
+- Build and tests on main: 18 passed.
+- #780: 29 passed. The real-model output is byte-identical across runs, and `-d` runs `free -h` after `y`.
+- #781: 44 passed.
+- $50 owed; 19 issues missing the bonus note; live endpoint statuses; docs.cxlinux.com down; brand-sweep counts.
+
+**New safety finding:** on main, a request matching a built-in CX action runs after `[Y/n]`, where Enter means yes. #775 changes this to `[y/N]`. It is one more reason for merge item 1 and the #775 rebase.
+
+### P10 — capital-efficiency evidence pack
+[EVIDENCE.md](EVIDENCE.md), built only from GitHub REST data and `git`:
+
+| Measure | Value |
+|---|---|
+| Merged PRs across 3 repos | 247 (219 of them Nov 2025 – Feb 2026) |
+| CX-specific code in cx-core | 31,622 lines (about 7% of cx-core Rust; the rest is the WezTerm base) |
+| Outside PR authors to cx-core | 53, of whom 37 had work merged |
+| Stated bounties on issues closed as completed | $3,263 (payment not visible on GitHub) |
+| Explicitly AI-attributed cx-core commits | ≥ 53 of 190 (lower bound) |
+
+States plainly that "3–5 developers × 18 months" needs a spend figure from outside GitHub.
+
+## Day 7 — Sun 2026-10-25 (11:25 MT)
+
+### Health check
+- Mike merged **cx-web #63** at 07:51 UTC. **Live:** the deployed account chunk no longer references docs.cxlinux.com (checked the production JS bundle).
+- No other merges. Open: cx-core #776, #779, #780, #781, #782; cx-web #60, #62; cx-distro #84.
+
+### Shipped / verified
+| What | Proof |
+|---|---|
+| Verification findings fixed (README, ledger, reviews, log corrections) | #782 `7c2cc53`; this commit |
+| **NEEDS_MIKE trimmed from 35 items to 10 ready-to-approve rows**, ordered by value. Done items removed; related items merged (e.g. the merge chain is one row) | [NEEDS_MIKE.md](NEEDS_MIKE.md) |
+
+### State at end of week
+- **Merged and live:**
+  - cx-core #771 (public build), #772 (EOF safety), #773 (docs);
+  - cx-web #57/#58/#59 (site QA 190/190), #61 (SEO 8/8), #63 (docs link).
+- **Ready for review, verified:**
+  - cx-core #776 → #780 → #781 (product path) and #782 (README);
+  - cx-web #62 → #60 (install script);
+  - cx-distro #84 (installer links).
+- **Biggest remaining risk:** none of the product fixes reach users until merge item 1 and a new APT release (item 9) happen.

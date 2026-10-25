@@ -20,6 +20,11 @@ Every PR below was re-checked against live GitHub. **No contributor PR received 
 
   Issue #708 carries no bounty; price it or label it `no-bounty` before merge (N8).
 - **#763 / #764 (NL install):** verdicts stand. The safety bar is now concrete: route package commands through `package_guard::guard` from [#781](https://github.com/cxlinux-ai/cx-core/pull/781). Both also need a rebase; they branched before #771 and share no merge base with current main. Draft request: NEEDS_MIKE N28.
+- **Corrections (2026-10-25, independent verification):**
+  - #763 and #764 both link **cx-distro #25** ($75 + bonus), not "none"; #763 was first (FCFS).
+  - #73 already says "Refs #35".
+  - Besides CLA, #744, #764 and #757 also fail `Cleanup artifacts`.
+  - #763/#764/#765 *do* share merge base `bf87c78` with main (3 commits behind); the Day 4 "no merge base" note came from a shallow clone.
 - **cx-distro #60** (Mike's clone-URL fix, February) is superseded by [#84](https://github.com/cxlinux-ai/cx-distro/pull/84), which removes every remaining legacy-org link. Recommend closing #60.
 
 ## cx-core
