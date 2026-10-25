@@ -128,8 +128,9 @@ cx ask -d "show memory usage"
 
 ## 🛡️ Safety & Security
 
-- **Preview by default**: AI-suggested commands are shown, not run, unless you add `-d`
-- **Explicit consent**: `-d` asks `[y/N]` before running (`-y` skips the prompt); no input (EOF) is always No
+- **AI suggestions are previews**: commands suggested by the AI are shown, not run, unless you add `-d`; then `cx` asks `[y/N]` first (`-y` skips the prompt)
+- **Built-in CX actions ask first**: requests that match a built-in CX action (for example "save my work" → `cx save`) are offered with `Run this? [Y/n]`, where Enter means yes
+- **No input is never consent**: when stdin is not a terminal (EOF), nothing runs
 - **Local-first AI**: with the downloaded model, questions are answered on your machine with no network calls
 
 ---
