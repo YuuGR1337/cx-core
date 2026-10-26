@@ -250,7 +250,7 @@ States plainly that "3–5 developers × 18 months" needs a spend figure from ou
 ### Health check
 - No merges since cx-web #63 (10-25). The parallel run updated its docs PR #777 today.
 - **`main` (`7b88a92`):**
-  - Packaging workflows are green on 9 of 10 platforms.
+  - Packaging workflows are green on 8 of 9 platforms (CentOS 9, Debian 12, Fedora 39–41, macOS, Ubuntu 22.04 and 24.04).
   - `debian11_continuous` is still red; #776 fixes it.
 - **Live:**
   - `cxlinux.com` 200 and `/install.sh` 200 (8,249 B). The served script is still the pre-#62 version: it still has the npm fallback and docs links.
