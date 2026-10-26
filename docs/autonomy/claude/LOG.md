@@ -244,3 +244,27 @@ States plainly that "3–5 developers × 18 months" needs a spend figure from ou
   - cx-web #62 → #60 (install script);
   - cx-distro #84 (installer links).
 - **Biggest remaining risk:** none of the product fixes reach users until merge item 1 and a new APT release (item 9) happen.
+
+## Final — Mon 2026-10-26 (11:25 MT)
+
+### Health check
+- No merges since cx-web #63 (10-25). The parallel run updated its docs PR #777 today.
+- **`main` (`7b88a92`):**
+  - Packaging workflows are green on 9 of 10 platforms.
+  - `debian11_continuous` is still red; #776 fixes it.
+- **Live:**
+  - `cxlinux.com` 200 and `/install.sh` 200 (8,249 B). The served script is still the pre-#62 version: it still has the npm fallback and docs links.
+  - APT `Release` 200.
+  - `docs.cxlinux.com` still 404.
+
+### Final build and test
+| Tree | Result |
+|---|---|
+| main `7b88a92` | `cargo build -p cx-terminal` OK; `cargo test -p cx-terminal` **18 passed** |
+| #780 `6608052` | **29 passed** |
+| #781 `848f401` | **44 passed, 1 ignored** (real-apt test, run separately in a container on 10-22) |
+
+### Week report
+Delivered as Markdown and a branded PDF; saved to the Project as `claude/CXLinux_autonomous_week_report.md`.
+
+NEEDS_MIKE.md stands at 10 rows, unchanged since 10-25.
