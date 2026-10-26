@@ -66,3 +66,8 @@ New core features, llama.cpp rewrite, Ed Honour outreach (contact unconfirmed), 
 - New from Michael's Claude track: cx-core #781 package guard (apt-get -s preview, [y/N] default No, audit + undo), stacked on #780. It covers #775's package-install path more safely. Suggested AI-side order: #780 → #781 → re-scope/rebase #775.
 - #777 docs mirror verified: exactly the 5 autonomy files.
 - Next: Mon Oct 26 wrap-up (T16). T12 README still waits on #774.
+
+    70|## Progress (updated 2026-10-26 09:10 MT, last day)
+- T16 DONE (status.md rollup). T15 filed early Oct 23. T01/M1, T10, T14 still Michael-only and not done.
+- Critical path unchanged since Oct 21: #776 → cx-web #62/#60 → #774 + APT release → M1 $20 buy. Then #780 → #781 → re-scope #775.
+- Low-risk extras from Claude track: cx-core #782 (README truth), cx-distro #84 (link fix). cx-web #63 merged Oct 25.

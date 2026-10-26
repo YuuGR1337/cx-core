@@ -85,3 +85,13 @@ Verified via GitHub API 9:05am MT. None of the cx-core PRs below has conflicts; 
 5. **M-PR780 then M-PR781:** https://github.com/cxlinux-ai/cx-core/pull/780 then https://github.com/cxlinux-ai/cx-core/pull/781 (package preview + confirm + undo; stacked, retargets to main after #780). #781's tests haven't run in CI yet; check CI after it retargets.
 6. **M-PR777:** docs only, any time: https://github.com/cxlinux-ai/cx-core/pull/777
 7. **M-PR775 (HOLD, re-scope):** after #781, Linus re-scopes #775 to dry-run default + sandbox for non-package commands and rebases.
+
+## Order of taps (UPDATED Mon Oct 26 9:10am MT, supersedes Oct 23)
+    90|Verified ~9:06am MT: only cx-web #63 merged since Friday. Same order as Oct 23, plus two low-risk docs taps.
+1. **M-PR776:** https://github.com/cxlinux-ai/cx-core/pull/776 (20/20 green). Approve, squash and merge.
+2. **M-PR62:** https://github.com/cxlinux-ai/cx-web/pull/62 into #60, then https://github.com/cxlinux-ai/cx-web/pull/60. Live installer still wrong (re-checked 9:04am MT).
+3. **M-CORE:** https://github.com/cxlinux-ai/cx-core/pull/774, then approve the APT release.
+4. **M1:** $20 test buy at https://cxlinux.com/pricing.
+5. **M-PR780 then M-PR781:** https://github.com/cxlinux-ai/cx-core/pull/780, https://github.com/cxlinux-ai/cx-core/pull/781.
+6. **Docs, any time:** https://github.com/cxlinux-ai/cx-core/pull/782 (README), https://github.com/cxlinux-ai/cx-distro/pull/84 (installer links), https://github.com/cxlinux-ai/cx-core/pull/777 (autonomy docs).
+7. **M-PR775:** HOLD, re-scope after #781.
